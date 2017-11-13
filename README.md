@@ -252,7 +252,7 @@ class AStar(AbstractShortPath):
    
     
     ### GREEDY_BEST_FIRST_SEARCH
-    
+[![Alt text](https://img.youtube.com/vi/3IBemFtwZ8g/0.jpg)](https://www.youtube.com/watch?v=3IBemFtwZ8g)
 [![Alt text](https://img.youtube.com/vi/lDA77HuNVHk/0.jpg)](https://www.youtube.com/watch?v=lDA77HuNVHk)
 
     ### Wave front
