@@ -246,7 +246,6 @@ class AStar(AbstractShortPath):
 		    ###
 		    print''
     ```
-    
 ## Example of results (videos)    
 ### GREEDY_BEST_FIRST_SEARCH
 [![Alt text](https://img.youtube.com/vi/lDA77HuNVHk/0.jpg)](https://www.youtube.com/watch?v=lDA77HuNVHk)
