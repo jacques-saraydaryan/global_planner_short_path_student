@@ -247,24 +247,13 @@ class AStar(AbstractShortPath):
 		    print''
     ```
     
-    ## Example of results (videos)
-    
-   
-    
-    ### GREEDY_BEST_FIRST_SEARCH
-[![Alt text](https://img.youtube.com/vi/3IBemFtwZ8g/0.jpg)](https://www.youtube.com/watch?v=3IBemFtwZ8g)
+## Example of results (videos)    
+### GREEDY_BEST_FIRST_SEARCH
 [![Alt text](https://img.youtube.com/vi/lDA77HuNVHk/0.jpg)](https://www.youtube.com/watch?v=lDA77HuNVHk)
-
-    ### Wave front
-     
+### Wave front
 [![Alt text](https://img.youtube.com/vi/O9L5zjO_doc/0.jpg)](https://www.youtube.com/watch?v=O9L5zjO_doc)
-
-    ### Dijsktra
-    
+### Dijsktra
 [![Alt text](https://img.youtube.com/vi/nK7DpX4PoL0/0.jpg)](https://www.youtube.com/watch?v=nK7DpX4PoL0)
-
-     
-    ### A*
-    
+ ### A*
 [![Alt text](https://img.youtube.com/vi/wf7FvOBaquY/0.jpg)](https://www.youtube.com/watch?v=wf7FvOBaquY)
 
