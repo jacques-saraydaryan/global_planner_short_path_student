@@ -2,6 +2,8 @@
 ## Description
 Use the turtlebot simulator (state) to learn short path algorithm.
 
+![Global Planner](https://github.com/jacques-saraydaryan/global_planner_short_path_student/blob/master/img/global_path_computing_astar.png "Define set of custom short path planner")
+
 ## How to use
 
 first install turtlebot simulator 
