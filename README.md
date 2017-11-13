@@ -25,20 +25,27 @@ Your algorithm began
 
 ## Customization
 Parameters can be modified into the ShortPathMng.py file :
+
+- Define the grid resolution (caution large grid lead to long processing...)
 ```
-RESOLUTION = rospy.get_param('~SHORT_PATH_RESOLUTION', 4): définit la résolution de la grille pour appliquer le plus court chemin (attention calculer un plus court chemin sur une grille très grande peu prendre beaucoup de temps)
-```
-```
-shortPathMethodeSelected = rospy.get_param('~SHORT_PATH_METHOD', 'GREEDY_BEST_FIRST_SEARCH'): definit la méthode par defaut comme algo de plus court chemin
-```
-```
-isLocalPlanner = rospy.get_param('~LOCAL_PLANNER_USED', True) : active l'utilisation de notre local planner ou laisse la main à la couche de navigation de ROS
-```
-```
-inflate_radius= rospy.get_param('~INFLATE_RADIUS', 0.3): definit le rayon d'inflate des obstacles
+RESOLUTION = rospy.get_param('~SHORT_PATH_RESOLUTION', 4)
 ```
 
+- Define the default short path method
+```
+shortPathMethodeSelected = rospy.get_param('~SHORT_PATH_METHOD', 'GREEDY_BEST_FIRST_SEARCH'): 
+```
 
+-activate custome local planner or not
+```
+isLocalPlanner = rospy.get_param('~LOCAL_PLANNER_USED', True)
+```
+
+- Define the inflate radius of obstacles
+
+```
+inflate_radius= rospy.get_param('~INFLATE_RADIUS', 0.3)
+```
 
 ## the job to do 
 
