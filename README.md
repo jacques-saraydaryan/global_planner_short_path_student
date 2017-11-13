@@ -27,30 +27,30 @@ On the rviz panel click on the publish point button to select a goal on the map.
 Parameters can be modified into the ShortPathMng.py file :
 
 - Define the grid resolution (caution large grid lead to long processing...)
-```
+```python
 RESOLUTION = rospy.get_param('~SHORT_PATH_RESOLUTION', 4)
 ```
 
 - Define the default short path method
-```
+```python
 shortPathMethodeSelected = rospy.get_param('~SHORT_PATH_METHOD', 'GREEDY_BEST_FIRST_SEARCH'): 
 ```
 
 - Activate custom local planner or not
-```
+```python
 isLocalPlanner = rospy.get_param('~LOCAL_PLANNER_USED', True)
 ```
 
 - Define the inflate radius of obstacles
 
-```
+```python
 inflate_radius= rospy.get_param('~INFLATE_RADIUS', 0.3)
 ```
 
 ## the job to do 
 
 1 Inflate the obstacles of your map according to the robot radius and the grid resolution
-```
+```python
     # **************************************************
     # ***************   INFLATE MAP    *****************
     # **************************************************
@@ -79,7 +79,7 @@ inflate_radius= rospy.get_param('~INFLATE_RADIUS', 0.3)
         # return new_inflated_map
 ```
 2 Complete the files Dijkstra.py to add the Dijkstra short path algorithm
-```
+```python
 class Dijsktra(AbstractShortPath):
     def __init__(self):
         print ''
@@ -139,7 +139,7 @@ class Dijsktra(AbstractShortPath):
 ```
 
 3 Complete the files AStar.py to add the AStar short path algorithm
-```
+```python
 class AStar(AbstractShortPath):
     def __init__(self):
         print ''
@@ -199,7 +199,7 @@ class AStar(AbstractShortPath):
 ```
 
 4 Link your global planner to your local planner
-```
+```python
  def __init__(self, resolution, shortPathMethod,isLocalPlanner,inflate_radius):
 	 ...
 	      # ------------------#
@@ -224,7 +224,7 @@ class AStar(AbstractShortPath):
   ```
   
   5 Complete in the case of using your local planner
-  ```  
+  ```python
    def pushGoals(self,mapNode,start,markerArray,isreverted,isPathOnService):
 	...
 	 if isPathOnService:
