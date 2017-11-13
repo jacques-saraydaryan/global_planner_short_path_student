@@ -224,7 +224,7 @@ class AStar(AbstractShortPath):
   ```
   
   5 Complete in the case of using your local planner
-  ```python
+```python
    def pushGoals(self,mapNode,start,markerArray,isreverted,isPathOnService):
 	...
 	 if isPathOnService:
@@ -245,7 +245,7 @@ class AStar(AbstractShortPath):
 		    #
 		    ###
 		    print''
-    ```
+```
 ## Example of results (videos)    
 ### GREEDY_BEST_FIRST_SEARCH
 [![Alt text](https://img.youtube.com/vi/lDA77HuNVHk/0.jpg)](https://www.youtube.com/watch?v=lDA77HuNVHk)
