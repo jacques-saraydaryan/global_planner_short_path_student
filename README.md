@@ -36,7 +36,7 @@ RESOLUTION = rospy.get_param('~SHORT_PATH_RESOLUTION', 4)
 shortPathMethodeSelected = rospy.get_param('~SHORT_PATH_METHOD', 'GREEDY_BEST_FIRST_SEARCH'): 
 ```
 
--activate custome local planner or not
+- Activate custom local planner or not
 ```
 isLocalPlanner = rospy.get_param('~LOCAL_PLANNER_USED', True)
 ```
