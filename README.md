@@ -6,7 +6,7 @@ Use the turtlebot simulator (state) to learn short path algorithm.
 
 ## How to use
 
-first install turtlebot simulator 
+First, install turtlebot simulator 
 ```
 sudo apt-get install ros-kinetic-turtlebot-stage
 ```
@@ -21,9 +21,7 @@ Launch the custom short path computation
 rosrun navigation_stage_student_tp ShortPathMng.py
 ```
 
-On the rviz panel click on the goal selection
-Select a goal on the map
-Your algorithm began
+On the rviz panel click on the publish point button to select a goal on the map. Your algorithm begins
 
 ## Customization
 Parameters can be modified into the ShortPathMng.py file :
