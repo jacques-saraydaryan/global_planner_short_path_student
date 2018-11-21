@@ -248,8 +248,10 @@ class AStar(AbstractShortPath):
 ```
 ## Example of results (videos)    
 ### GREEDY_BEST_FIRST_SEARCH
-[![GREEDY_BEST_FIRST_SEARCH](img/naviGreedy.gif "GREEDY_BEST_FIRST_SEARCH")](https://www.youtube.com/watch?v=lDA77HuNVHk)
-[![Alt text](https://img.youtube.com/vi/lDA77HuNVHk/0.jpg)](https://www.youtube.com/watch?v=lDA77HuNVHk)
+
+| Behavior | Result |
+| --- | ----------- |
+| [![GREEDY_BEST_FIRST_SEARCH](img/naviGreedy.gif "GREEDY_BEST_FIRST_SEARCH")](https://www.youtube.com/watch?v=lDA77HuNVHk) | [![Alt text](https://img.youtube.com/vi/lDA77HuNVHk/0.jpg)](https://www.youtube.com/watch?v=lDA77HuNVHk) |
 ### Wave front
 [![Wave front](img/naviWave.gif "Wave front")](https://www.youtube.com/watch?v=O9L5zjO_doc)
 [![Alt text](https://img.youtube.com/vi/O9L5zjO_doc/0.jpg)](https://www.youtube.com/watch?v=O9L5zjO_doc)
