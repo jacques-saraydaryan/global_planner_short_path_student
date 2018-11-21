@@ -253,12 +253,17 @@ class AStar(AbstractShortPath):
 | --- | ----------- |
 | [![GREEDY_BEST_FIRST_SEARCH](img/naviGreedy.gif "GREEDY_BEST_FIRST_SEARCH")](https://www.youtube.com/watch?v=lDA77HuNVHk) | [![Alt text](https://img.youtube.com/vi/lDA77HuNVHk/0.jpg)](https://www.youtube.com/watch?v=lDA77HuNVHk) |
 ### Wave front
-[![Wave front](img/naviWave.gif "Wave front")](https://www.youtube.com/watch?v=O9L5zjO_doc)
-[![Alt text](https://img.youtube.com/vi/O9L5zjO_doc/0.jpg)](https://www.youtube.com/watch?v=O9L5zjO_doc)
+| Behavior | Result |
+| --- | ----------- |
+| [![Wave front](img/naviWave.gif "Wave front")](https://www.youtube.com/watch?v=O9L5zjO_doc) | [![Alt text](https://img.youtube.com/vi/O9L5zjO_doc/0.jpg)](https://www.youtube.com/watch?v=O9L5zjO_doc) |
+
 ### Dijsktra
-[![Dijsktra](img/naviDijstr.gif "Dijsktra")](https://www.youtube.com/watch?v=nK7DpX4PoL0)
-[![Alt text](https://img.youtube.com/vi/nK7DpX4PoL0/0.jpg)](https://www.youtube.com/watch?v=nK7DpX4PoL0)
+| Behavior | Result |
+| --- | ----------- |
+| [![Dijsktra](img/naviDijstr.gif "Dijsktra")](https://www.youtube.com/watch?v=nK7DpX4PoL0) | [![Alt text](https://img.youtube.com/vi/nK7DpX4PoL0/0.jpg)](https://www.youtube.com/watch?v=nK7DpX4PoL0) |
+
  ### A*
- [![AStar](img/naviAstar.gif "AStar")](https://www.youtube.com/watch?v=wf7FvOBaquY)
-[![Alt text](https://img.youtube.com/vi/wf7FvOBaquY/0.jpg)](https://www.youtube.com/watch?v=wf7FvOBaquY)
+ | Behavior | Result |
+ | --- | ----------- |
+ | [![AStar](img/naviAstar.gif "AStar")](https://www.youtube.com/watch?v=wf7FvOBaquY) |  [![Alt text](https://img.youtube.com/vi/wf7FvOBaquY/0.jpg)](https://www.youtube.com/watch?v=wf7FvOBaquY) |
 
