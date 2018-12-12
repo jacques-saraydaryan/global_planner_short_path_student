@@ -80,6 +80,7 @@ class AbstractShortPath:
             marker.type = marker.CYLINDER
             marker.pose.position.x = (v['x'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
             marker.pose.position.y = (v['y'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
+            marker.pose.orientation.w = 1
 
             markerArray.markers.append(marker)
 
@@ -101,6 +102,7 @@ class AbstractShortPath:
         marker.type = marker.CUBE
         marker.pose.position.x = currentgoal.pose.position.x
         marker.pose.position.y = currentgoal.pose.position.y
+        marker.pose.orientation.w = 1
 
         markerArray.markers.append(marker)
 
@@ -122,6 +124,7 @@ class AbstractShortPath:
         marker.type = marker.CUBE
         marker.pose.position.x = (current['x'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
         marker.pose.position.y = (current['y'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
+        marker.pose.orientation.w = 1
         markerArray.markers.append(marker)
 
     def createFontierUnitMarker(self, v, markerArray):
@@ -141,4 +144,5 @@ class AbstractShortPath:
         marker.type = marker.CYLINDER
         marker.pose.position.x = (v['x'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
         marker.pose.position.y = (v['y'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
+        marker.pose.orientation.w = 1
         markerArray.markers.append(marker)

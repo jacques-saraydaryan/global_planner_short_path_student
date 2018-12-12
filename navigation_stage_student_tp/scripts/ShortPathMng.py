@@ -191,6 +191,7 @@ class ShortPathMng:
                         marker.type = marker.CUBE
                         marker.pose.position.x = ((new_j/float(2))/(float(10)/resolution))+0.2
                         marker.pose.position.y = ((new_i/float(2))/(float(10)/resolution))+0.2
+                        marker.pose.orientation.w = 1
                         markerArray.markers.append(marker)
                 else:
                         #print 'i:'+str(i)+"--> obstacle"
@@ -302,7 +303,7 @@ class ShortPathMng:
             marker.type = marker.CUBE
             marker.pose.position.x = currentgoal.pose.position.x
             marker.pose.position.y = currentgoal.pose.position.y
-
+            marker.pose.orientation.w = 1
             markerArray.markers.append(marker)
 
 # ******************************************************************************************
@@ -326,6 +327,7 @@ class ShortPathMng:
         marker.type = marker.TEXT_VIEW_FACING
         marker.pose.position.x = x
         marker.pose.position.y = y
+        marker.pose.orientation.w = 1
         marker.text=text
         marker_array.markers.append(marker)
         return marker_array
@@ -419,7 +421,7 @@ if __name__ == '__main__':
         RESOLUTION = rospy.get_param('~SHORT_PATH_RESOLUTION', 4)
         shortPathMethodeSelected = rospy.get_param('~SHORT_PATH_METHOD', 'GREEDY_BEST_FIRST_SEARCH')
         #shortPathMethodeSelected = rospy.get_param('~SHORT_PATH_METHOD', 'WAVEFRONT')
-        isLocalPlanner = rospy.get_param('~LOCAL_PLANNER_USED', True)
+        isLocalPlanner = rospy.get_param('~LOCAL_PLANNER_USED', False)
         inflate_radius= rospy.get_param('~INFLATE_RADIUS', 0.3)
         print("------>Used SHORT_PATH_METHOD: "+str(shortPathMethodeSelected))
 

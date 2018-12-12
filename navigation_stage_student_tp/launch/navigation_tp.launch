@@ -90,5 +90,5 @@
     <!-- <node name="planner_student" pkg="local_planner_student" type="planner_student" args=""></node> -->
 
   <!--  **************** TP NAVIGATION ****************  -->
-  <!-- <node name="ShortPathMng" pkg="navigation_stage_tp" type="ShortPathMng.py" args=""></node> -->
+  <!-- <node name="ShortPathMng" pkg="navigation_stage_student_tp" type="ShortPathMng.py" args=""></node> -->
 </launch>
