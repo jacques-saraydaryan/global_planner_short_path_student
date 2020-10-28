@@ -10,22 +10,24 @@ import tf
 from nav_msgs.msg import OccupancyGrid
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
-from geometry_msgs.msg import Point,PoseStamped,PointStamped
-
+from geometry_msgs.msg import Point, PoseStamped, PointStamped
 
 import numpy as np
 import heapq
-from Queue import Queue,LifoQueue,PriorityQueue
+from Queue import Queue, LifoQueue, PriorityQueue
 import rospy
+
 
 # http://www.bogotobogo.com/python/python_PriorityQueue_heapq_Data_Structure.php
 
 
 class WaveFront(AbstractShortPath):
-    def __init__(self):
-        print ''
+    SLEEP_TIME_BEFORE_NEXT_ITERATION = 0.01
 
-    def goto(self, source, target, matrix,pub_marker,marker_array):
+    def __init__(self):
+        print('')
+
+    def goto(self, source, target, matrix, pub_marker, marker_array):
         # In wavefront computation start from the target
         start = {'x': target['x'], 'y': target['y']}
 
@@ -44,17 +46,17 @@ class WaveFront(AbstractShortPath):
             # get the point of the FIFO and remove it from the frontier
             current = frontier.get()
             # create visual info
-            self.createClosedMarker(current, marker_array)
+            self.createClosedMarkerPt(current, marker_array)
 
             # for all neighbors of the current point
-            for next in self.getNeighbors(current,matrix):
+            for next in self.getNeighbors(current, matrix):
                 # counter of number of iteration, only to see computation size
                 it = it + 1
 
                 # check that the current Neighbor has not be processed
                 if str(next['x']) + '_' + str(next['y']) not in came_from:
                     # create visual info
-                    self.createFontierUnitMarker(next, marker_array)
+                    self.createFontierUnitMarkerPt(next, marker_array)
                     # Add the Neighbor to be processed in th FIFO
                     frontier.put(next)
 
@@ -63,28 +65,27 @@ class WaveFront(AbstractShortPath):
 
             # publish the visual markers
             pub_marker.publish(marker_array)
-            marker_array = MarkerArray()
+            #marker_array = MarkerArray()
             # wait before next iteration
-            rospy.sleep(0.2)
-        print 'end of wave front it:' + str(it)
+            rospy.sleep(self.SLEEP_TIME_BEFORE_NEXT_ITERATION)
+        print('end of wave front it:' + str(it))
         pub_marker.publish(marker_array)
 
         # return the dictionary of precedence
         return came_from
 
-
-    def getNeighbors(self, currentNode,matrix):
+    def getNeighbors(self, currentNode, matrix):
         """ Compute Neighbors of the current point, Return the list of the point neighbors in Cfree"""
         x_c = currentNode['x']
         y_c = currentNode['y']
         neighbors = []
-        self.checkAndAdd(neighbors, x_c + 1, y_c,matrix)
-        self.checkAndAdd(neighbors, x_c, y_c + 1,matrix)
-        self.checkAndAdd(neighbors, x_c - 1, y_c,matrix)
-        self.checkAndAdd(neighbors, x_c, y_c - 1,matrix)
+        self.checkAndAdd(neighbors, x_c + 1, y_c, matrix)
+        self.checkAndAdd(neighbors, x_c, y_c + 1, matrix)
+        self.checkAndAdd(neighbors, x_c - 1, y_c, matrix)
+        self.checkAndAdd(neighbors, x_c, y_c - 1, matrix)
         return neighbors
 
-    def checkAndAdd(self, neighbors, x, y,matrix):
+    def checkAndAdd(self, neighbors, x, y, matrix):
         """ Check that the candidate neighbor is valid == not an obstacle, in current bound, add the nieghbor node to the node list"""
         if (x > 0 and x < len(matrix) and y > 0 and y < len(matrix[0])):
             if (matrix[y][x] != self.MAP_OBSTACLE_VALUE):

@@ -4,16 +4,17 @@ from AbstractShortPath import AbstractShortPath
 import math
 import rospy
 from visualization_msgs.msg import MarkerArray
-# sys.path.append('../')
 
+
+# sys.path.append('../')
 
 
 class AStar(AbstractShortPath):
     def __init__(self):
-        print ''
+        print('')
 
-    def goto(self, source, target, matrix,pub_marker,marker_array):
-        prev={}
+    def goto(self, source, target, matrix, pub_marker, marker_container):
+        prev = {}
         ### TODO
         ###########################################################
         ################### Function Paramters ###################
@@ -26,21 +27,21 @@ class AStar(AbstractShortPath):
         ###
         ### elf.MAP_OBSTACLE_VALUE: value of an obstacle into the matrix (-100)
         ###
-        ### pub_marker: marker publisher to visualize information into rviz (usage pub_marker.publish(marker_array) )
+        ### pub_marker: marker publisher to visualize information into rviz (usage pub_marker.publish(marker_container) )
         ###
-        ### marker_array: marker container where new markers new to be added
+        ### marker_container: marker container where where new marker are added as point
         ###
         ###########################################################
         ################### Function Toolboxes ###################
         ###########################################################
         #   # create a visual information
-        #   self.createFontierUnitMarker(v, marker_array)
+        #   self.createFontierUnitMarker(v, marker_container)
         #
         #    # publish visual information
-        #    pub_marker.publish(marker_array)
+        #    pub_marker.publish(marker_containers)
         #
         #    # create a visual information
-        #    self.createClosedMarker(u, marker_array)
+        #    self.createClosedMarker(u, marker_container)
         #
         #
         #
