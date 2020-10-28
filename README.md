@@ -82,10 +82,11 @@ inflate_radius= rospy.get_param('~INFLATE_RADIUS', 0.3)
 ```python
 class Dijsktra(AbstractShortPath):
     def __init__(self):
-        print ''
+        print('')
 
-    def goto(self, source, target, matrix,pub_marker,marker_array):
-        prev={}
+
+    def goto(self, source, target, matrix, pub_marker, marker_container):
+        prev = {}
         ### TODO
         ###########################################################
         ################### Function Paramters ###################
@@ -96,23 +97,23 @@ class Dijsktra(AbstractShortPath):
         ###
         ### matrix: rescaled map (including obstacles) matrix[i][j] return the value of the cell i,j of the matrix
         ###
-        ### self.MAP_OBSTACLE_VALUE: value of an obstacle into the matrix (-100)
+        ### elf.MAP_OBSTACLE_VALUE: value of an obstacle into the matrix (-100)
         ###
-        ### pub_marker: marker publisher to visualize information into rviz (usage pub_marker.publish(marker_array) )
+        ### pub_marker: marker publisher to visualize information into rviz (usage pub_marker.publish(marker_container) )
         ###
-        ### marker_array: marker container where new markers new to be added
+        ### marker_container: marker container where where new marker are added as point
         ###
         ###########################################################
         ################### Function Toolboxes ###################
         ###########################################################
         #   # create a visual information
-        #   self.createFontierUnitMarker(v, marker_array)
+        #   self.createFontierUnitMarker(v, marker_container)
         #
         #    # publish visual information
-        #    pub_marker.publish(marker_array)
+        #    pub_marker.publish(marker_container)
         #
         #    # create a visual information
-        #    self.createClosedMarker(u, marker_array)
+        #    self.createClosedMarker(u, marker_container)
         #
         #
         #
@@ -135,17 +136,16 @@ class Dijsktra(AbstractShortPath):
         ### where v['x'] return the x position of the node v in the resized map
         ### where v['y'] return the y position of the node v in the resized map
         return prev
-
 ```
 
 3 Complete the files AStar.py to add the AStar short path algorithm
 ```python
 class AStar(AbstractShortPath):
     def __init__(self):
-        print ''
+        print('')
 
-    def goto(self, source, target, matrix,pub_marker,marker_array):
-        prev={}
+    def goto(self, source, target, matrix, pub_marker, marker_container):
+        prev = {}
         ### TODO
         ###########################################################
         ################### Function Paramters ###################
@@ -158,21 +158,21 @@ class AStar(AbstractShortPath):
         ###
         ### elf.MAP_OBSTACLE_VALUE: value of an obstacle into the matrix (-100)
         ###
-        ### pub_marker: marker publisher to visualize information into rviz (usage pub_marker.publish(marker_array) )
+        ### pub_marker: marker publisher to visualize information into rviz (usage pub_marker.publish(marker_container) )
         ###
-        ### marker_array: marker container where new markers new to be added
+        ### marker_container: marker container where where new marker are added as point
         ###
         ###########################################################
         ################### Function Toolboxes ###################
         ###########################################################
         #   # create a visual information
-        #   self.createFontierUnitMarker(v, marker_array)
+        #   self.createFontierUnitMarker(v, marker_container)
         #
         #    # publish visual information
-        #    pub_marker.publish(marker_array)
+        #    pub_marker.publish(marker_containers)
         #
         #    # create a visual information
-        #    self.createClosedMarker(u, marker_array)
+        #    self.createClosedMarker(u, marker_container)
         #
         #
         #
