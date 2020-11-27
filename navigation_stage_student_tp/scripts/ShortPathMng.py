@@ -194,7 +194,7 @@ class ShortPathMng:
                     current_point.y = ((new_i / float(2)) / (float(10) / resolution)) + 0.2
 
                     marker_container.points.append(current_point)
-                    marker_container.points.append(current_color)
+                    marker_container.colors.append(current_color)
                 else:
                     # print 'i:'+str(i)+"--> obstacle"
                     # print 'j:'+str(j)
