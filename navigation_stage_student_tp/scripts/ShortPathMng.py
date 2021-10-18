@@ -19,7 +19,6 @@ from ShortPathMethods.AStar import AStar
 # from local_planner_student.srv import Path as Path_Planner
 from Queue import Queue, LifoQueue
 
-
 class ShortPathMng:
     mapArray = ""
     OBSTACLE_VALUE = 100
@@ -126,7 +125,6 @@ class ShortPathMng:
     # **************************************************
 
     def inflate_map(self, map, map_resolution):
-        new_inflated_map = ""
         ### TODO
         ### map :original map ( like a grid[][] )
         ### map_resolution :original map resolution (e.g 0.05)
@@ -146,7 +144,7 @@ class ShortPathMng:
 
         return map
         ## UNCOMMENT LINE BELLOW TO TEST YOUR INFLATED MAP
-        # return new_inflated_map
+        #return new_inflated_map
 
     def resizeWithResolution(self, map, resolution):
         marker_container = Marker()
@@ -170,12 +168,12 @@ class ShortPathMng:
                 if (i == 0):
                     new_i = 0
                 else:
-                    new_i = i / resolution
+                    new_i = int(round(i / float(resolution)))
 
                 if (j == 0):
                     new_j = 0
                 else:
-                    new_j = j / resolution
+                    new_j = int(round(j / float(resolution)))
 
                 # if(j>=0 and j<self.map_width/resolution and i>=0 and i<self.map_height/resolution):
                 if self.isObstacle(map, i, j, resolution):
@@ -189,12 +187,16 @@ class ShortPathMng:
                     current_color.b = 1;
 
                     current_point.z = 0.20 / float(10)
+                    offset=resolution *self.resolution/float(2)
 
-                    current_point.x = ((new_j / float(2)) / (float(10) / resolution)) + 0.2
-                    current_point.y = ((new_i / float(2)) / (float(10) / resolution)) + 0.2
+                    current_point.x = ((new_j * resolution *self.resolution))+offset
+                    current_point.y = ((new_i * resolution *self.resolution))+offset
+
+                    #current_point.x = ((new_j / float(2)) / (float(10) / resolution))
+                    #current_point.y = ((new_i / float(2)) / (float(10) / resolution)) 
 
                     marker_container.points.append(current_point)
-                    marker_container.points.append(current_color)
+                    marker_container.colors.append(current_color)
                 else:
                     # print 'i:'+str(i)+"--> obstacle"
                     # print 'j:'+str(j)
