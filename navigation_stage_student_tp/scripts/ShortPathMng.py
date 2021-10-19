@@ -117,7 +117,7 @@ class ShortPathMng:
         self.isMapComputed = True
 
         for shortPathMetodName in self.shortPathAlgoMap.iterkeys():
-            self.shortPathAlgoMap[shortPathMetodName].setMap(self.resizedMap, self.map_width, self.map_height)
+            self.shortPathAlgoMap[shortPathMetodName].setMap(self.resizedMap, self.map_width, self.map_height,self.resolution,self.RESOLUTION)
             self.shortPathAlgoMap[shortPathMetodName].RESOLUTION = self.RESOLUTION
 
     # **************************************************
@@ -401,8 +401,14 @@ class ShortPathMng:
         goal = PoseStamped()
         goal.header.frame_id = "map";
         goal.header.stamp = rospy.Time.now();
-        goal.pose.position.x = (x / float(2) / (float(10) / self.RESOLUTION)) + 0.2
-        goal.pose.position.y = (y / float(2) / (float(10) / self.RESOLUTION)) + 0.2
+
+        offset=self.RESOLUTION *self.resolution/float(2)
+
+        goal.pose.position.x = ((x * self.resolution *self.RESOLUTION))+offset
+        goal.pose.position.y = ((y * self.resolution *self.RESOLUTION))+offset
+
+        #goal.pose.position.x = (x / float(2) / (float(10) / self.RESOLUTION)) + 0.2
+        #goal.pose.position.y = (y / float(2) / (float(10) / self.RESOLUTION)) + 0.2
         goal.pose.orientation.x = 0
         goal.pose.orientation.y = 0
         goal.pose.orientation.z = 0.0379763283083
