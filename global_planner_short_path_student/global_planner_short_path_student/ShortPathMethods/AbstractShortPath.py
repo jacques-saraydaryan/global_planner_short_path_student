@@ -1,7 +1,7 @@
 __author__ = 'Jacques Saraydaryan'
 
 from abc import ABCMeta, abstractmethod
-import rospy
+import rclpy
 from visualization_msgs.msg import Marker
 from geometry_msgs.msg import Point
 from std_msgs.msg import ColorRGBA
@@ -45,9 +45,9 @@ class AbstractShortPath:
         current_point.z = 0.20 / float(10)
 
         current_color = ColorRGBA()
-        current_color.r = 0
-        current_color.g = 0
-        current_color.b = 1
+        current_color.r = 0.0
+        current_color.g = 0.0
+        current_color.b = 1.0
         current_color.a = 0.5
 
         marker_container.points.append(current_point)
@@ -67,9 +67,9 @@ class AbstractShortPath:
         current_point.z = 0.20 / float(10)
 
         current_color = ColorRGBA()
-        current_color.r = 0
-        current_color.g = 1
-        current_color.b = 0
+        current_color.r = 0.0
+        current_color.g = 1.0
+        current_color.b = 0.0
         current_color.a = 0.5
 
         marker_container.points.append(current_point)
@@ -82,8 +82,8 @@ class AbstractShortPath:
         marker_container.points = []
         marker_container.colors = []
         marker_container.header.frame_id = "map";
-        marker_container.header.stamp = rospy.Time.now()
+        marker_container.header.stamp = rclpy.time.Time().to_msg()
         marker_container.scale.x = (0.5 / float(10)) * self.RESOLUTION
         marker_container.scale.y = (0.5 / float(10)) * self.RESOLUTION
-        marker_container.pose.orientation.w = 1
+        marker_container.pose.orientation.w = 1.0
         return marker_container
