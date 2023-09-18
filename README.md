@@ -6,19 +6,62 @@ Use the turtlebot simulator (state) to learn short path algorithm.
 
 ## How to use
 
-First, install turtlebot simulator 
+Every thing work inside the following given docker image
+
+Prepare your terminal (X11 redirection)
 ```
-sudo apt-get install ros-kinetic-turtlebot-stage
+xhost +
 ```
 
-Launch the simulator 
+Start the container (ros humble)
 ```
-roslaunch navigation_stage_student_tp navigation_tp.launch
+sudo docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix --network host registry.gitlab.com/js-ros-training/ros-training-docker-public/ros-humble-desktop-stage:v1
 ```
 
-Launch the custom short path computation
+On the opened container terminal load env:
 ```
-rosrun navigation_stage_student_tp ShortPathMng.py
+source /opt/ros/humble/setup.bash
+cd /home/tp/ros_ws/
+source install/setup.bash
+```
+
+Start stage simulator :
+```
+ ros2 run stage_ros stageros src/stage_ros2/world/maze.world
+```
+---- 
+> for all next ros2 command , open another terminal on the started container:
+> ```
+>  xhost +
+>  sudo docker exec -it <container ID> /bin/bash
+> ```
+> load env:
+> ```
+>  source /opt/ros/humble/setup.bash
+>  cd /home/tp/ros_ws/
+>  source install/setup.bash
+> ```
+---- 
+
+(New container terminal) Start navigation for stage simulator :
+```
+ros2 launch stage_ros robot_launch.py nav:=true
+```
+
+(New container terminal) Start map_sever :
+```
+ros2 run nav2_util lifecycle_bringup map_server
+```
+
+
+(New container terminal) Launch the custom short path computation
+```
+cd /home/tp/ros_ws/src
+git clone https://github.com/jacques-saraydaryan/global_planner_short_path_student.git
+cd /home/tp/ros_ws
+colcon build --packages-select global_planner_short_path_student
+source install/setup.bash
+ros2 run global_planner_short_path_student ShortPathMng
 ```
 
 On the rviz panel click on the publish point button to select a goal on the map. Your algorithm begins
@@ -26,26 +69,19 @@ On the rviz panel click on the publish point button to select a goal on the map.
 ## Customization
 Parameters can be modified into the ShortPathMng.py file :
 
-- Define the grid resolution (caution large grid lead to long processing...)
 ```python
-RESOLUTION = rospy.get_param('~SHORT_PATH_RESOLUTION', 4)
+        def __init__(self, resolution=8, shortPathMethod='GREEDY_BEST_FIRST_SEARCH', isLocalPlanner=False, 
+inflate_radius=0.3):
+    ...
 ```
+- Define the grid resolution (caution large grid lead to long processing...) `resolution=8`
 
-- Define the default short path method
-```python
-shortPathMethodeSelected = rospy.get_param('~SHORT_PATH_METHOD', 'GREEDY_BEST_FIRST_SEARCH'): 
-```
 
-- Activate custom local planner or not
-```python
-isLocalPlanner = rospy.get_param('~LOCAL_PLANNER_USED', True)
-```
+- Define the default short path method `shortPathMethod='GREEDY_BEST_FIRST_SEARCH'` (possible 'WAVEFRONT', 'ASTAR', 'DIJKSTRA', 'GREEDY_BEST_FIRST_SEARCH')
 
-- Define the inflate radius of obstacles
+- Activate custom local planner or not: `isLocalPlanner=False`
 
-```python
-inflate_radius= rospy.get_param('~INFLATE_RADIUS', 0.3)
-```
+- Define the inflate radius of obstacles `inflate_radius=0.3`
 
 ## the job to do 
 

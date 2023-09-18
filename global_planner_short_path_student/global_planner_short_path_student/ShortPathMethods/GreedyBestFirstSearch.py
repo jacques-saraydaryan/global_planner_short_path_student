@@ -1,10 +1,11 @@
 __author__ = 'Jacques saraydaryan'
 
-from AbstractShortPath import AbstractShortPath
-from Queue import Queue, LifoQueue, PriorityQueue
+from global_planner_short_path_student.ShortPathMethods.AbstractShortPath import AbstractShortPath
+from queue import Queue, LifoQueue, PriorityQueue
 import math
-import rospy
+import rclpy
 from visualization_msgs.msg import MarkerArray
+import time
 
 
 # import sys
@@ -75,7 +76,8 @@ class GreedyBestFirstSearch(AbstractShortPath):
             pub_marker.publish(marker_container)
             #marker_container = self._create_marker_container()
             # wait before next iteration
-            rospy.sleep(self.SLEEP_TIME_BEFORE_NEXT_ITERATION)
+            time.sleep(self.SLEEP_TIME_BEFORE_NEXT_ITERATION)
+            #rospy.sleep(self.SLEEP_TIME_BEFORE_NEXT_ITERATION)
         print(str(prev))
         return prev
 

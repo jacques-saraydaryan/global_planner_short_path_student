@@ -1,8 +1,8 @@
 __author__ = 'Jacques saraydaryan'
 
-from AbstractShortPath import AbstractShortPath
+from global_planner_short_path_student.ShortPathMethods.AbstractShortPath import AbstractShortPath
 import math
-import rospy
+import rclpy
 from visualization_msgs.msg import MarkerArray
 
 

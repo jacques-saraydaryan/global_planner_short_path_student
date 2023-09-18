@@ -1,12 +1,11 @@
 __author__ = 'Jacques saraydaryan'
 
-from AbstractShortPath import AbstractShortPath
+from global_planner_short_path_student.ShortPathMethods.AbstractShortPath import AbstractShortPath
 # import sys
 # sys.path.append('../')
 
 
 import time
-import tf
 from nav_msgs.msg import OccupancyGrid
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
@@ -14,8 +13,9 @@ from geometry_msgs.msg import Point, PoseStamped, PointStamped
 
 import numpy as np
 import heapq
-from Queue import Queue, LifoQueue, PriorityQueue
-import rospy
+from queue import Queue, LifoQueue, PriorityQueue
+import rclpy
+import time
 
 
 # http://www.bogotobogo.com/python/python_PriorityQueue_heapq_Data_Structure.php
@@ -67,7 +67,7 @@ class WaveFront(AbstractShortPath):
             pub_marker.publish(marker_array)
             #marker_array = MarkerArray()
             # wait before next iteration
-            rospy.sleep(self.SLEEP_TIME_BEFORE_NEXT_ITERATION)
+            time.sleep(self.SLEEP_TIME_BEFORE_NEXT_ITERATION)
         print('end of wave front it:' + str(it))
         pub_marker.publish(marker_array)
 
