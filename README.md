@@ -29,23 +29,19 @@ Start stage simulator :
 ```
  ros2 run stage_ros stageros src/stage_ros2/world/maze.world
 ```
-
-> [!NOTE]
+---- 
 > for all next ros2 command , open another terminal on the started container
-
 > Open another terminal in the started docker container
-
-    ```
-        xhost +
-        sudo docker exec -it <container ID> /bin/bash
-    ```
-
+> ```
+>  xhost +
+>  sudo docker exec -it <container ID> /bin/bash
+> ```
 > load env:
-    ```
-        source /opt/ros/humble/setup.bash
-        cd /home/tp/ros_ws/
-        source install/setup.bash
-    ```
+> ```
+>  source /opt/ros/humble/setup.bash
+>  cd /home/tp/ros_ws/
+>  source install/setup.bash
+> ```
 ---- 
 
 (New container terminal) Start navigation for stage simulator :
