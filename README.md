@@ -6,15 +6,58 @@ Use the turtlebot simulator (state) to learn short path algorithm.
 
 ## How to use
 
-First, install turtlebot simulator 
+Every thing work inside the following given docker image
+
+Prepare your terminal (X11 redirection)
 ```
-sudo apt-get install ros-kinetic-turtlebot-stage
+xhost +
 ```
 
-Launch the simulator 
+Start the container (ros humble)
 ```
-roslaunch navigation_stage_student_tp navigation_tp.launch
+sudo docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix --network host registry.gitlab.com/js-ros-training/ros-training-docker-public/ros-humble-desktop-stage:v1
 ```
+
+On the opened container terminal load env:
+```
+source /opt/ros/humble/setup.bash
+cd /home/tp/ros_ws/
+source install/setup.bash
+```
+
+Start stage simulator :
+```
+ ros2 run stage_ros stageros src/stage_ros2/world/maze.world
+```
+
+> [!NOTE]
+> for all next ros2 command , open another terminal on the started container
+
+> Open another terminal in the started docker container
+
+    ```
+        xhost +
+        sudo docker exec -it <container ID> /bin/bash
+    ```
+
+> load env:
+    ```
+        source /opt/ros/humble/setup.bash
+        cd /home/tp/ros_ws/
+        source install/setup.bash
+    ```
+---- 
+
+(New container terminal) Start navigation for stage simulator :
+```
+ros2 launch stage_ros robot_launch.py nav:=true
+```
+
+(New container terminal) Start map_sever :
+```
+ros2 run nav2_util lifecycle_bringup map_server
+```
+
 
 Launch the custom short path computation
 ```
