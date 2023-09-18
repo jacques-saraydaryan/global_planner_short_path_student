@@ -30,8 +30,7 @@ Start stage simulator :
  ros2 run stage_ros stageros src/stage_ros2/world/maze.world
 ```
 ---- 
-> for all next ros2 command , open another terminal on the started container
-> Open another terminal in the started docker container
+> for all next ros2 command , open another terminal on the started container:
 > ```
 >  xhost +
 >  sudo docker exec -it <container ID> /bin/bash
@@ -55,9 +54,14 @@ ros2 run nav2_util lifecycle_bringup map_server
 ```
 
 
-Launch the custom short path computation
+(New container terminal) Launch the custom short path computation
 ```
-rosrun navigation_stage_student_tp ShortPathMng.py
+cd /home/tp/ros_ws/src
+git clone https://github.com/jacques-saraydaryan/global_planner_short_path_student.git
+cd /home/tp/ros_ws
+colcon build --packages-select global_planner_short_path_student
+source install/setup.bash
+ros2 run global_planner_short_path_student ShortPathMng
 ```
 
 On the rviz panel click on the publish point button to select a goal on the map. Your algorithm begins
@@ -65,26 +69,19 @@ On the rviz panel click on the publish point button to select a goal on the map.
 ## Customization
 Parameters can be modified into the ShortPathMng.py file :
 
-- Define the grid resolution (caution large grid lead to long processing...)
 ```python
-RESOLUTION = rospy.get_param('~SHORT_PATH_RESOLUTION', 4)
+        def __init__(self, resolution=8, shortPathMethod='GREEDY_BEST_FIRST_SEARCH', isLocalPlanner=False, 
+inflate_radius=0.3):
+    ...
 ```
+- Define the grid resolution (caution large grid lead to long processing...) `resolution=8`
 
-- Define the default short path method
-```python
-shortPathMethodeSelected = rospy.get_param('~SHORT_PATH_METHOD', 'GREEDY_BEST_FIRST_SEARCH'): 
-```
 
-- Activate custom local planner or not
-```python
-isLocalPlanner = rospy.get_param('~LOCAL_PLANNER_USED', True)
-```
+- Define the default short path method `shortPathMethod='GREEDY_BEST_FIRST_SEARCH'` (possible 'WAVEFRONT', 'ASTAR', 'DIJKSTRA', 'GREEDY_BEST_FIRST_SEARCH')
 
-- Define the inflate radius of obstacles
+- Activate custom local planner or not: `isLocalPlanner=False`
 
-```python
-inflate_radius= rospy.get_param('~INFLATE_RADIUS', 0.3)
-```
+- Define the inflate radius of obstacles `inflate_radius=0.3`
 
 ## the job to do 
 
