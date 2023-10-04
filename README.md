@@ -15,7 +15,7 @@ xhost +
 
 Start the container (ros humble)
 ```
-sudo docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix --network host registry.gitlab.com/js-ros-training/ros-training-docker-public/ros-humble-desktop-stage:v1
+sudo docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix registry.gitlab.com/js-ros-training/ros-training-docker-public/ros-humble-desktop-stage:v1
 ```
 
 On the opened container terminal load env:
