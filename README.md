@@ -15,7 +15,7 @@ xhost +
 
 Start the container (ros humble)
 ```
-sudo docker run -it -e -p 22:22 --name global_planner DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix registry.gitlab.com/js-ros-training/ros-training-docker-public/ros-humble-desktop-stage:v2
+sudo docker run -it -p 2222:22 --name global_planner -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix registry.gitlab.com/js-ros-training/ros-training-docker-public/ros-humble-desktop-stage:v2
 ```
 
 On the opened container terminal load env:
