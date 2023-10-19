@@ -6,65 +6,75 @@ Use the turtlebot simulator (state) to learn short path algorithm.
 
 ## How to use
 
-Every thing work inside the following given docker image
-
-Prepare your terminal (X11 redirection)
-```
-xhost +
-```
-
-Start the container (ros humble)
-```
-sudo docker run -it -p 2222:22 --name global_planner -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix registry.gitlab.com/js-ros-training/ros-training-docker-public/ros-humble-desktop-stage:v2
-```
-
-On the opened container terminal load env:
-```
-source /opt/ros/humble/setup.bash
-cd /home/tp/ros_ws/
-source install/setup.bash
-```
-
-Start stage simulator :
-```
- ros2 run stage_ros stageros src/stage_ros2/world/maze.world
-```
----- 
-> for all next ros2 command , open another terminal on the started container:
-> ```
->  xhost +
->  sudo docker exec -it <container ID> /bin/bash
-> ```
-> load env:
-> ```
->  source /opt/ros/humble/setup.bash
->  cd /home/tp/ros_ws/
->  source install/setup.bash
-> ```
----- 
-
-(New container terminal) Start navigation for stage simulator :
-```
-ros2 launch stage_ros robot_launch.py nav:=true
-```
-
-(New container terminal) Start map_sever :
-```
-ros2 run nav2_util lifecycle_bringup map_server
-```
+### Check your Host configuration
+- Before starting the container check the following 
+    ```
+        export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+        export ROS_DOMAIN_ID=<Your domain ID>
+        export ROS_LOCALHOST_ONLY=0
+    ```
+- Tips: add/Update these command to your ~/.bashrc files
 
 
-(New container terminal) Launch the custom short path computation
-```
-cd /home/tp/ros_ws/src
-git clone https://github.com/jacques-saraydaryan/global_planner_short_path_student.git
-cd /home/tp/ros_ws
-colcon build --packages-select global_planner_short_path_student
-source install/setup.bash
-ros2 run global_planner_short_path_student ShortPathMng
-```
+### Start your container
+- Start the stage simulator and the ros navigation stack into the docker container
 
-On the rviz panel click on the publish point button to select a goal on the map. Your algorithm begins
+- Start the container (ros humble)
+
+    ```
+        sudo docker run -it --network host --name global_planner registry.gitlab.com/js-ros-training/ros-training-docker-public/ros-humble-desktop-stage:v3
+    ```
+
+
+- On the opened container terminal load env:
+    ```
+        source /opt/ros/humble/setup.bash
+        cd /home/tp/ros_ws/
+        source install/setup.bash
+    ```
+
+- Set the ROS communication to cyclone_dds
+
+    ```
+        export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+    ```
+
+
+### On a Host terminal
+
+- Create a ros workspace
+    ```
+        cd <your prefered folder>
+        mkdir -p /ros_ws/src
+    ```
+
+- Clone the repo in your new src folder
+    ```
+        cd ros_ws/src
+        git clone https://github.com/jacques-saraydaryan/global_planner_short_path_student.git
+    ```
+
+- Compile the package
+    ```
+        cd ..
+        colcon build --packages-select global_planner_short_path_student
+        source install/setup.bash
+    ```
+
+- Start the programm
+    ```
+        ros2 run global_planner_short_path_student ShortPathMng
+    ```
+
+- Open an rviz interface and open associated configuration `global_planner_short_path_student/global_planner_short_path_student/rviz/stage_nav_rviz_config.rviz`
+
+
+### On the Container terminal
+- Once the ShortPathMng is running, on the `CONTAINER TERMINAL` start the simulator
+    ```
+        ros2 launch stage_ros sim_and_nav_launch.py
+    ```
+
 
 ## Customization
 Parameters can be modified into the ShortPathMng.py file :
