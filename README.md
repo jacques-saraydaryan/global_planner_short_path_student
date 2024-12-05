@@ -23,7 +23,6 @@ On the opened container terminal load env:
 source /opt/ros/humble/setup.bash
 cd /home/tp/ros_ws/
 source install/setup.bash
-export ROS_DOMAIN_ID=<your_domain_id>
 export ROS_LOCALHOST_ONLY=1
 ```
 
@@ -42,7 +41,6 @@ Start stage simulator :
 >  source /opt/ros/humble/setup.bash
 >  cd /home/tp/ros_ws/
 >  source install/setup.bash
-> export ROS_DOMAIN_ID=<your_domain_id>
 > export ROS_LOCALHOST_ONLY=1
 > ```
 ---- 
