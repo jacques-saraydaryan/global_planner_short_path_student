@@ -108,7 +108,9 @@ class ShortPathMng(Node):
         self.map_width = data.info.width
         self.map_height = data.info.height
         self.resolution = data.info.resolution
-        self.mapArray = [[0 for x in range(self.map_height)] for x in range(self.map_width)]
+
+        print("data.info.height:"+str(data.info.height)+",data.info.width:"+str(data.info.width))
+        self.mapArray = [[0 for x in range(self.map_width)] for x in range(self.map_height)]
 
         size = self.map_width * self.map_height
         i = 0
@@ -124,7 +126,7 @@ class ShortPathMng(Node):
 
             if data.data[index] == self.OBSTACLE_VALUE:
                 cellValue = self.MAP_OBSTACLE_VALUE
-
+            print("[current_index_y]"+str(current_index_y)+"[current_index_x]"+str(current_index_x))
             self.mapArray[current_index_y][current_index_x] = cellValue
 
         # INFLATE the map according the given inflate radius
