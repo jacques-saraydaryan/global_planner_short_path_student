@@ -48,7 +48,8 @@ class GreedyBestFirstSearch(AbstractShortPath):
             u = self.minScore(fscore, frontier)
             #print('current Node:' + str(u))
             # remove the current node to the node to process list
-            frontier.remove(u)
+            if( u in frontier):
+                frontier.remove(u)
             # create a visual information
             #self.createClosedMarker(u, marker_container)
             self.createClosedMarkerPt(u, marker_container)

@@ -126,7 +126,7 @@ class ShortPathMng(Node):
 
             if data.data[index] == self.OBSTACLE_VALUE:
                 cellValue = self.MAP_OBSTACLE_VALUE
-            print("[current_index_y]"+str(current_index_y)+"[current_index_x]"+str(current_index_x))
+            
             self.mapArray[current_index_y][current_index_x] = cellValue
 
         # INFLATE the map according the given inflate radius
@@ -179,24 +179,29 @@ class ShortPathMng(Node):
         marker_container.header.stamp = rclpy.time.Time().to_msg()
         marker_container.pose.orientation.w = 1.0
 
-        resizedMapArray = [[0 for x in range(int(self.map_height / resolution))] for x in range(int(self.map_width / resolution))]
+        resizedMapArray = [[0 for x in range(int(self.map_width / resolution))] for x in range(int(self.map_height / resolution))]
+        
         i = 0
         j = 0
-        while i < len(map[0]):
+        while i < len(map):
             j = 0
-            while j < len(map):
+            while j < len(map[0]):
                 if (i == 0):
                     new_i = 0
                 else:
                     new_i = int(round(i / float(resolution)))
+                    new_i = new_i if new_i< len(resizedMapArray) else len(resizedMapArray) -1
 
                 if (j == 0):
                     new_j = 0
                 else:
+        
                     new_j = int(round(j / float(resolution)))
+                    new_j = new_j if new_j< len(resizedMapArray[0]) else len(resizedMapArray[0]) -1
 
                 # if(j>=0 and j<self.map_width/resolution and i>=0 and i<self.map_height/resolution):
                 if self.isObstacle(map, i, j, resolution):
+        
                     resizedMapArray[new_i][new_j] = self.MAP_OBSTACLE_VALUE
                     current_point = Point()
                     current_color = ColorRGBA()
@@ -208,6 +213,7 @@ class ShortPathMng(Node):
 
                     current_point.z = 0.20 / float(10)
                     offset=resolution *self.resolution/float(2)
+                    
 
                     current_point.x = ((new_j * resolution *self.resolution))+offset
                     current_point.y = ((new_i * resolution *self.resolution))+offset
@@ -221,6 +227,7 @@ class ShortPathMng(Node):
                     # print 'i:'+str(i)+"--> obstacle"
                     # print 'j:'+str(j)
                     resizedMapArray[new_i][new_j] = 0
+                    
                 j = j + resolution
             i = i + resolution
         self.pub_marker.publish(marker_container)

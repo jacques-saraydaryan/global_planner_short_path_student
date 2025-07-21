@@ -38,8 +38,9 @@ class AbstractShortPath:
         
         offset=self.map_resolution *self.resolution/float(2)
 
-        current_point.x = (((current['x'] * self.map_resolution *self.resolution))+offset)
-        current_point.y = (((current['y'] * self.map_resolution *self.resolution))+offset)        
+        print(f"current: {current}")
+        current_point.x = (((float(current['x']) * self.map_resolution *self.resolution))+offset)
+        current_point.y = (((float(current['y']) * self.map_resolution *self.resolution))+offset)        
         #current_point.x = (current['x'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
         #current_point.y = (current['y'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
         current_point.z = 0.20 / float(10)
