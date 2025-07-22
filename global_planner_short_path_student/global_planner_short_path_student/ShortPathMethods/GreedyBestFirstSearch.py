@@ -16,7 +16,7 @@ class GreedyBestFirstSearch(AbstractShortPath):
     SLEEP_TIME_BEFORE_NEXT_ITERATION = 0.01
 
     def __init__(self):
-        print('')
+        pass
 
     def goto(self, source, target, matrix, pub_marker, marker_container):
         # Dictionary that holds the previous node reference
@@ -29,7 +29,7 @@ class GreedyBestFirstSearch(AbstractShortPath):
 
         # Condition to stop the path finding algo
         isEnd = False
-        print('start processing')
+        self.logger.info('[GreedyBestFirstSearch] Start processing')
 
         # Intialisation
         for i in range(len(matrix)):
@@ -40,7 +40,7 @@ class GreedyBestFirstSearch(AbstractShortPath):
                 frontier.append({'x': i, 'y': j})
         # score of the start node is set to 0
         fscore[str(source['x']) + '_' + str(source['y'])] = 0
-        print('end initialisation phase')
+        self.logger.info('[GreedyBestFirstSearch] End initialisation phase')
 
         # while their is node to process or goal is reached (early exit)
         while len(frontier) != 0 and not isEnd:
@@ -79,7 +79,7 @@ class GreedyBestFirstSearch(AbstractShortPath):
             # wait before next iteration
             time.sleep(self.SLEEP_TIME_BEFORE_NEXT_ITERATION)
             #rospy.sleep(self.SLEEP_TIME_BEFORE_NEXT_ITERATION)
-        print(str(prev))
+        #print(str(prev))
         return prev
 
     def minScore(self, fscore, frontier):

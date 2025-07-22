@@ -42,13 +42,34 @@ class ShortPathMng(Node):
     tflistener = ""
     MAX_VALUE = 1000000
 
-    def __init__(self, resolution=8, shortPathMethod='GREEDY_BEST_FIRST_SEARCH', isLocalPlanner=False, inflate_radius=0.3):
+    def __init__(self,):
         super().__init__('short_path_mng_node') # Call the constructor of the parent with the node name
         # init params
-        self.shortPathMethodeSelected = shortPathMethod
-        self.RESOLUTION = resolution
-        self.isLocalPlanner = isLocalPlanner
-        self.inflate_radius = inflate_radius
+        self.declare_parameter('resolution',4 )
+        param_resolution = self.get_parameter('resolution').get_parameter_value().integer_value
+
+        self.declare_parameter('shortPathMethod','WAVEFRONT' )
+        param_shortPathMethod = self.get_parameter('shortPathMethod').get_parameter_value().string_value
+
+        self.declare_parameter('isLocalPlanner',False )
+        param_isLocalPlanner = self.get_parameter('isLocalPlanner').get_parameter_value().bool_value
+
+        self.declare_parameter('inflate_radius',0.3 )
+        param_inflate_radius = self.get_parameter('inflate_radius').get_parameter_value().double_value
+
+        self.get_logger().info(f'-------------------------------------------')
+        self.get_logger().info(f'Parameter shortPathMethod: {param_shortPathMethod}')
+        self.get_logger().info(f"Parameter resolution: {param_resolution} ")
+        self.get_logger().info(f"Parameter isLocalPlanner: {param_isLocalPlanner} ")
+        self.get_logger().info(f"Parameter inflate_radius: {param_inflate_radius} ")
+        self.get_logger().info(f'-------------------------------------------')
+        
+
+
+        self.shortPathMethodeSelected = param_shortPathMethod
+        self.isLocalPlanner = param_isLocalPlanner
+        self.inflate_radius = param_inflate_radius
+        self.RESOLUTION = param_resolution
         
         # ------------------#
         # --- Subscriber ---#
@@ -109,7 +130,7 @@ class ShortPathMng(Node):
         self.map_height = data.info.height
         self.resolution = data.info.resolution
 
-        print("data.info.height:"+str(data.info.height)+",data.info.width:"+str(data.info.width))
+        self.get_logger().info(f'data.info.height:{data.info.height}, data.info.width:{data.info.width}')
         self.mapArray = [[0 for x in range(self.map_width)] for x in range(self.map_height)]
 
         size = self.map_width * self.map_height
@@ -134,10 +155,11 @@ class ShortPathMng(Node):
 
         # resize map
         self.resizedMap = self.resizeWithResolution(inflate_map, self.RESOLUTION)
-        print('map received and processed')
+        self.get_logger().info(f'Map received and processed')
         self.isMapComputed = True
 
         for shortPathMetodName in self.shortPathAlgoMap:
+            self.shortPathAlgoMap[shortPathMetodName].setLogger(self.get_logger())
             self.shortPathAlgoMap[shortPathMetodName].setMap(self.resizedMap, self.map_width, self.map_height,self.resolution,self.RESOLUTION)
             self.shortPathAlgoMap[shortPathMetodName].RESOLUTION = self.RESOLUTION
 
@@ -286,7 +308,7 @@ class ShortPathMng(Node):
         robot_pos_matrix = {}
         goal_matrix = {}
         if len(str(robot_pos)) > 0:
-            self.get_logger().info("[ShortPathMng] New Navigation From [" + str(robot_pos[0]) + "," + str(robot_pos[1]) + "] To [" + str(
+            self.get_logger().debug("[ShortPathMng] New Navigation From [" + str(robot_pos[0]) + "," + str(robot_pos[1]) + "] To [" + str(
                 goal.point.x) + "," + str(goal.point.y) + "], Real positions ")
 
         # Fix point to matrix coord
@@ -296,7 +318,7 @@ class ShortPathMng(Node):
         goal_matrix['x'] = int(round(goal.point.x / float(self.RESOLUTION * 0.05), 0))
         goal_matrix['y'] = int(round(goal.point.y / float(self.RESOLUTION * 0.05), 0))
 
-        self.get_logger().info("[ShortPathMng] New Navigation From [" + str(robot_pos_matrix['x']) + "," + str(robot_pos_matrix['y']) + "] To [" + str(
+        self.get_logger().debug("[ShortPathMng] New Navigation From [" + str(robot_pos_matrix['x']) + "," + str(robot_pos_matrix['y']) + "] To [" + str(
                 goal_matrix['x']) + "," + str(goal_matrix['y']) + "], Matrix based positions ")
 
         self.pub_marker.publish((self.createAlgoTxtMarker('Cleaning markers', -1.0, 5.0)))
@@ -310,7 +332,7 @@ class ShortPathMng(Node):
         goalMap = self.shortPathAlgoMap[self.shortPathMethodeSelected].goto(robot_pos_matrix, goal_matrix,
                                                                             self.resizedMap, self.pub_marker,
                                                                             marker_container)
-        self.get_logger().info("[ShortPathMng]  Path to follow:" + str(goalMap))
+        self.get_logger().debug("[ShortPathMng]  Path to follow:" + str(goalMap))
         #path = self.shortPathAlgoMap[self.shortPathMethodeSelected].goto(robot_pos_matrix, goal_matrix, self.mapArray)
         if 'WAVEFRONT' == self.shortPathMethodeSelected:
             self.pushGoals(goalMap, robot_pos_matrix, marker_container, False, self.isLocalPlanner)
@@ -400,7 +422,7 @@ class ShortPathMng(Node):
             while prev != None:
                 # x=round(int(prev.split('_')[0])/float(self.RESOLUTION*0.5),0)
                 # y=round(int(prev.split('_')[1])/float(self.RESOLUTION*0.5),0)
-                print('GOAL -->' + prev)
+                self.get_logger().debug(f'GOAL -->{prev}')
                 x = int(prev.split('_')[0])
                 y = int(prev.split('_')[1])
                 currentgoal = self.createGoal(x, y)
@@ -409,7 +431,7 @@ class ShortPathMng(Node):
                 goalQueue.put(currentgoal)
                 prev = mapNode[str(x) + '_' + str(y)]
         except KeyError as e:
-            print('end reverse path')
+            self.get_logger().debug(f'end reverse path')
         self.pub_marker.publish(marker_container)
 
         if (isreverted):
@@ -435,7 +457,7 @@ class ShortPathMng(Node):
             #
             #
             ###
-            print('')
+            self.get_logger().info(f'')
         else:
             while not goalQueue.empty():              
                 self.navigator.goToPose(goalQueue.get())
@@ -466,7 +488,7 @@ class ShortPathMng(Node):
 
 def main(args=None):
     rclpy.init(args=args)   # Initialized the rclpy lib
-    mng = ShortPathMng(inflate_radius=0.3,) # Create the node
+    mng = ShortPathMng() # Create the node
     rclpy.spin(mng)  # Execute and block until the contexte is shutdown, also to keep alive node and use associated callback function
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically

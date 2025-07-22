@@ -32,7 +32,7 @@ Use the turtlebot simulator (state) to learn short path algorithm.
 - Start the simulation (set headless:=False fo visualize gazebo gui)
 
 ```
-    ros2 launch nav2_bringup tb4_simulation_launch.py world:=$TRAINING_GLOBAL/world/baseline.world x_pose:=-4.0 y_pose:=-3.0 z_pose:=0 map:=$TRAINING_GLOBAL/map/baseline.yaml
+    ros2 launch nav2_bringup tb4_simulation_launch.py world:=$TRAINING_GLOBAL/world/baseline.world x_pose:=1.0 y_pose:=1.0 z_pose:=0 map:=$TRAINING_GLOBAL/map/baseline.yaml
 ```
 - Compile the training Repo and start the Node
 
@@ -44,6 +44,13 @@ ros2 run global_planner_short_path_student ShortPathMng
 ```
 
 On the rviz panel click on the publish point button to select a goal on the map. Your algorithm begins
+
+
+- Tips: you can set the different algorithm by passing parameters to the node:
+
+```
+    ros2 run global_planner_short_path_student ShortPathMng --ros-args -p resolution:=1 -p shortPathMethod:='WAVEFRONT' -p inflate_radius:=0.5 -p isLocalPlanner:=True
+```
 
 ## Customization
 Parameters can be modified into the ShortPathMng.py file :

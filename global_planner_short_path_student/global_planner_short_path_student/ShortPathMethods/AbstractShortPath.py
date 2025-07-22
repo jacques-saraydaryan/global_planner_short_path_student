@@ -22,6 +22,9 @@ class AbstractShortPath:
     # @abstractmethod
     # def robot_detection_callback(self): pass
 
+    def setLogger(self, logger):
+        self.logger = logger
+
     def setMap(self, resizedMap, map_width, map_height,map_resolution,resolution):
         self.resizedMap = resizedMap
         self.map_width = map_width
@@ -38,7 +41,6 @@ class AbstractShortPath:
         
         offset=self.map_resolution *self.resolution/float(2)
 
-        print(f"current: {current}")
         current_point.x = (((float(current['x']) * self.map_resolution *self.resolution))+offset)
         current_point.y = (((float(current['y']) * self.map_resolution *self.resolution))+offset)        
         #current_point.x = (current['x'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
