@@ -53,23 +53,23 @@ On the rviz panel click on the publish point button to select a goal on the map.
 ```
 
 ## Customization
-Parameters can be modified into the ShortPathMng.py file :
+Parameters can be modified through the ShortPathMng.py parameters :
 
-```python
-        def __init__(self, resolution=8, shortPathMethod='GREEDY_BEST_FIRST_SEARCH', isLocalPlanner=False, 
-inflate_radius=0.3):
-    ...
 ```
-- Define the grid resolution (caution large grid lead to long processing...) `resolution=8`
+    
+    ros2 run global_planner_short_path_student ShortPathMng --ros-args -p resolution:=1 -p shortPathMethod:='WAVEFRONT' -p inflate_radius:=0.5 -p isLocalPlanner:=True
+```
+- `resolution` Define the grid resolution factor of the simulation (caution large grid lead to long processing...) 
 
 
-- Define the default short path method `shortPathMethod='GREEDY_BEST_FIRST_SEARCH'` (possible 'WAVEFRONT', 'ASTAR', 'DIJKSTRA', 'GREEDY_BEST_FIRST_SEARCH')
+- `shortPathMethod` :Define the default short path method  (possible 'WAVEFRONT', 'ASTAR', 'DIJKSTRA', 'GREEDY_BEST_FIRST_SEARCH')
 
-- Activate custom local planner or not: `isLocalPlanner=False`
+- `inflate_radius` Define the inflate radius of obstacles 
 
-- Define the inflate radius of obstacles `inflate_radius=0.3`
+- `isLocalPlanner` Activate custom local planner or not
 
-## the job to do 
+
+## The job to do 
 
 1 Inflate the obstacles of your map according to the robot radius and the grid resolution
 ```python
@@ -104,7 +104,7 @@ inflate_radius=0.3):
 ```python
 class Dijsktra(AbstractShortPath):
     def __init__(self):
-        print('')
+        pass
 
 
     def goto(self, source, target, matrix, pub_marker, marker_container):
@@ -164,7 +164,7 @@ class Dijsktra(AbstractShortPath):
 ```python
 class AStar(AbstractShortPath):
     def __init__(self):
-        print('')
+        pass
 
     def goto(self, source, target, matrix, pub_marker, marker_container):
         prev = {}

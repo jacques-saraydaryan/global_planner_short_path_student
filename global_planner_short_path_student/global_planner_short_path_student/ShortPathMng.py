@@ -35,7 +35,7 @@ class ShortPathMng(Node):
     mapArray = ""
     OBSTACLE_VALUE = 100
     MAP_OBSTACLE_VALUE = -100
-    RESOLUTION = 4 #8
+    sim_resolution_factor = 4 #8
     shortPathAlgoMap = {'WAVEFRONT': WaveFront(), 'ASTAR': AStar(), 'DIJKSTRA': Dijsktra(),
                         'GREEDY_BEST_FIRST_SEARCH': GreedyBestFirstSearch()}
     shortPathMethodeSelected = 'WAVEFRONT'
@@ -69,7 +69,7 @@ class ShortPathMng(Node):
         self.shortPathMethodeSelected = param_shortPathMethod
         self.isLocalPlanner = param_isLocalPlanner
         self.inflate_radius = param_inflate_radius
-        self.RESOLUTION = param_resolution
+        self.sim_resolution_factor = param_resolution
         
         # ------------------#
         # --- Subscriber ---#
@@ -128,7 +128,7 @@ class ShortPathMng(Node):
     def mapCallback(self, data):
         self.map_width = data.info.width
         self.map_height = data.info.height
-        self.resolution = data.info.resolution
+        self.map_resolution = data.info.resolution
 
         self.get_logger().info(f'data.info.height:{data.info.height}, data.info.width:{data.info.width}')
         self.mapArray = [[0 for x in range(self.map_width)] for x in range(self.map_height)]
@@ -151,17 +151,17 @@ class ShortPathMng(Node):
             self.mapArray[current_index_y][current_index_x] = cellValue
 
         # INFLATE the map according the given inflate radius
-        inflate_map = self.inflate_map(self.mapArray, data.info.resolution)
+        inflate_map = self.inflate_map(self.mapArray, self.map_resolution)
 
         # resize map
-        self.resizedMap = self.resizeWithResolution(inflate_map, self.RESOLUTION)
+        self.resizedMap = self.resizeWithResolution(inflate_map, self.sim_resolution_factor)
         self.get_logger().info(f'Map received and processed')
         self.isMapComputed = True
 
         for shortPathMetodName in self.shortPathAlgoMap:
             self.shortPathAlgoMap[shortPathMetodName].setLogger(self.get_logger())
-            self.shortPathAlgoMap[shortPathMetodName].setMap(self.resizedMap, self.map_width, self.map_height,self.resolution,self.RESOLUTION)
-            self.shortPathAlgoMap[shortPathMetodName].RESOLUTION = self.RESOLUTION
+            self.shortPathAlgoMap[shortPathMetodName].setMap(self.resizedMap, self.map_width, self.map_height,self.map_resolution,self.sim_resolution_factor)
+            self.shortPathAlgoMap[shortPathMetodName].sim_resolution_factor = self.sim_resolution_factor
 
     # **************************************************
     # ***************   INFLATE MAP    *****************
@@ -188,7 +188,7 @@ class ShortPathMng(Node):
         return map
         ## UNCOMMENT LINE BELLOW TO TEST YOUR INFLATED MAP
         #return new_inflated_map
-    def resizeWithResolution(self, map, resolution):
+    def resizeWithResolution(self, map, map_resolution):
         marker_container = Marker()
         marker_container.id = 2
         marker_container.type = Marker.CUBE_LIST
@@ -196,12 +196,12 @@ class ShortPathMng(Node):
         marker_container.colors = []
         marker_container.header.frame_id = "map";
         marker_container.ns = "wall";
-        marker_container.scale.x = (0.5 / float(10)) * resolution;
-        marker_container.scale.y = (0.5 / float(10)) * resolution;
+        marker_container.scale.x = (0.5 / float(10)) * map_resolution;
+        marker_container.scale.y = (0.5 / float(10)) * map_resolution;
         marker_container.header.stamp = rclpy.time.Time().to_msg()
         marker_container.pose.orientation.w = 1.0
 
-        resizedMapArray = [[0 for x in range(int(self.map_width / resolution))] for x in range(int(self.map_height / resolution))]
+        resizedMapArray = [[0 for x in range(int(self.map_width / map_resolution))] for x in range(int(self.map_height / map_resolution))]
         
         i = 0
         j = 0
@@ -211,18 +211,18 @@ class ShortPathMng(Node):
                 if (i == 0):
                     new_i = 0
                 else:
-                    new_i = int(round(i / float(resolution)))
+                    new_i = int(round(i / float(map_resolution)))
                     new_i = new_i if new_i< len(resizedMapArray) else len(resizedMapArray) -1
 
                 if (j == 0):
                     new_j = 0
                 else:
         
-                    new_j = int(round(j / float(resolution)))
+                    new_j = int(round(j / float(map_resolution)))
                     new_j = new_j if new_j< len(resizedMapArray[0]) else len(resizedMapArray[0]) -1
 
                 # if(j>=0 and j<self.map_width/resolution and i>=0 and i<self.map_height/resolution):
-                if self.isObstacle(map, i, j, resolution):
+                if self.isObstacle(map, i, j, map_resolution):
         
                     resizedMapArray[new_i][new_j] = self.MAP_OBSTACLE_VALUE
                     current_point = Point()
@@ -234,11 +234,11 @@ class ShortPathMng(Node):
                     current_color.b = 1.0;
 
                     current_point.z = 0.20 / float(10)
-                    offset=resolution *self.resolution/float(2)
+                    offset=map_resolution *self.map_resolution/float(2)
                     
 
-                    current_point.x = ((new_j * resolution *self.resolution))+offset
-                    current_point.y = ((new_i * resolution *self.resolution))+offset
+                    current_point.x = ((new_j * map_resolution *self.map_resolution))+offset
+                    current_point.y = ((new_i * map_resolution *self.map_resolution))+offset
 
                     #current_point.x = ((new_j / float(2)) / (float(10) / resolution))
                     #current_point.y = ((new_i / float(2)) / (float(10) / resolution)) 
@@ -250,8 +250,8 @@ class ShortPathMng(Node):
                     # print 'j:'+str(j)
                     resizedMapArray[new_i][new_j] = 0
                     
-                j = j + resolution
-            i = i + resolution
+                j = j + map_resolution
+            i = i + map_resolution
         self.pub_marker.publish(marker_container)
         return resizedMapArray
 
@@ -312,11 +312,11 @@ class ShortPathMng(Node):
                 goal.point.x) + "," + str(goal.point.y) + "], Real positions ")
 
         # Fix point to matrix coord
-        robot_pos_matrix['x'] = int(round(robot_pos[0] / float(self.RESOLUTION * 0.05), 0))
-        robot_pos_matrix['y'] = int(round(robot_pos[1] / float(self.RESOLUTION * 0.05), 0))
+        robot_pos_matrix['x'] = int(round(robot_pos[0] / float(self.sim_resolution_factor * 0.05), 0))
+        robot_pos_matrix['y'] = int(round(robot_pos[1] / float(self.sim_resolution_factor * 0.05), 0))
 
-        goal_matrix['x'] = int(round(goal.point.x / float(self.RESOLUTION * 0.05), 0))
-        goal_matrix['y'] = int(round(goal.point.y / float(self.RESOLUTION * 0.05), 0))
+        goal_matrix['x'] = int(round(goal.point.x / float(self.sim_resolution_factor * 0.05), 0))
+        goal_matrix['y'] = int(round(goal.point.y / float(self.sim_resolution_factor * 0.05), 0))
 
         self.get_logger().debug("[ShortPathMng] New Navigation From [" + str(robot_pos_matrix['x']) + "," + str(robot_pos_matrix['y']) + "] To [" + str(
                 goal_matrix['x']) + "," + str(goal_matrix['y']) + "], Matrix based positions ")
@@ -407,8 +407,8 @@ class ShortPathMng(Node):
     # ******************************************************************************************
 
     def pushGoals(self, mapNode, start, marker_container, isreverted, isPathOnService):
-        # x=round(int(target['x'])/float(self.RESOLUTION*0.5),0)
-        # y=round(int(target['y'])/float(self.RESOLUTION*0.5),0)
+        # x=round(int(target['x'])/float(self.sim_resolution_factor*0.5),0)
+        # y=round(int(target['y'])/float(self.sim_resolution_factor*0.5),0)
         revert = []
         x = start['x']
         y = start['y']
@@ -420,8 +420,8 @@ class ShortPathMng(Node):
             prev = mapNode[str(int(x)) + '_' + str(int(y))]
             # FIXME TO CHECK NONE VALUE
             while prev != None:
-                # x=round(int(prev.split('_')[0])/float(self.RESOLUTION*0.5),0)
-                # y=round(int(prev.split('_')[1])/float(self.RESOLUTION*0.5),0)
+                # x=round(int(prev.split('_')[0])/float(self.sim_resolution_factor*0.5),0)
+                # y=round(int(prev.split('_')[1])/float(self.sim_resolution_factor*0.5),0)
                 self.get_logger().debug(f'GOAL -->{prev}')
                 x = int(prev.split('_')[0])
                 y = int(prev.split('_')[1])
@@ -472,10 +472,10 @@ class ShortPathMng(Node):
         goal.header.frame_id = "map";
         goal.header.stamp = rclpy.time.Time().to_msg()
 
-        offset=self.RESOLUTION *self.resolution/float(2)
+        offset=self.sim_resolution_factor *self.map_resolution/float(2)
 
-        goal.pose.position.x = ((x * self.resolution *self.RESOLUTION))+offset
-        goal.pose.position.y = ((y * self.resolution *self.RESOLUTION))+offset
+        goal.pose.position.x = ((x * self.map_resolution *self.sim_resolution_factor))+offset
+        goal.pose.position.y = ((y * self.map_resolution *self.sim_resolution_factor))+offset
 
         #goal.pose.position.x = (x / float(2) / (float(10) / self.RESOLUTION)) + 0.2
         #goal.pose.position.y = (y / float(2) / (float(10) / self.RESOLUTION)) + 0.2
