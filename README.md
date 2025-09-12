@@ -6,9 +6,9 @@ Use the turtlebot simulator (state) to learn short path algorithm.
 
 ## How to use
 
-- See Gazebo start instruction [./README-Gazebo.md](./README-Gazebo.md)
+- For ROS2 JAZZY - Gazebo usage, see Gazebo start instruction [./README-Gazebo.md](./README-Gazebo.md)
 or
-- See Stage and Docker start instruction [./README-Stage-docker.md](./README-Stage-docker.md)
+- For ROS2 HUMBLE - STAGE usage, see Stage and Docker start instruction [./README-Stage-docker.md](./README-Stage-docker.md)
 
 
 ## Customization
