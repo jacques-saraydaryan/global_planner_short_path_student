@@ -25,9 +25,11 @@ class WaveFront(AbstractShortPath):
     SLEEP_TIME_BEFORE_NEXT_ITERATION = 0.01
 
     def __init__(self):
-        print('')
+        pass
 
     def goto(self, source, target, matrix, pub_marker, marker_array):
+        self.logger.info(f'[WaveFront] Start Processing')
+
         # In wavefront computation start from the target
         start = {'x': target['x'], 'y': target['y']}
 
@@ -68,7 +70,7 @@ class WaveFront(AbstractShortPath):
             #marker_array = MarkerArray()
             # wait before next iteration
             time.sleep(self.SLEEP_TIME_BEFORE_NEXT_ITERATION)
-        print('end of wave front it:' + str(it))
+        self.logger.info(f'[WaveFront] end of wave front it:{it}')
         pub_marker.publish(marker_array)
 
         # return the dictionary of precedence

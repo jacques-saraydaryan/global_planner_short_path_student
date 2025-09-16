@@ -8,12 +8,12 @@ from std_msgs.msg import ColorRGBA
 
 
 class AbstractShortPath:
-    RESOLUTION = 8
+    sim_resolution_factor = 8
     MAP_OBSTACLE_VALUE = -100
 
     def __init__(self):
         # FIXME need to take value from ShortPathMng
-        self.RESOLUTION = 8
+        self.sim_resolution_factor = 8
         self.MAP_OBSTACLE_VALUE = -100
 
     @abstractmethod
@@ -21,6 +21,9 @@ class AbstractShortPath:
 
     # @abstractmethod
     # def robot_detection_callback(self): pass
+
+    def setLogger(self, logger):
+        self.logger = logger
 
     def setMap(self, resizedMap, map_width, map_height,map_resolution,resolution):
         self.resizedMap = resizedMap
@@ -38,8 +41,8 @@ class AbstractShortPath:
         
         offset=self.map_resolution *self.resolution/float(2)
 
-        current_point.x = (((current['x'] * self.map_resolution *self.resolution))+offset)
-        current_point.y = (((current['y'] * self.map_resolution *self.resolution))+offset)        
+        current_point.x = (((float(current['x']) * self.map_resolution *self.resolution))+offset)
+        current_point.y = (((float(current['y']) * self.map_resolution *self.resolution))+offset)        
         #current_point.x = (current['x'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
         #current_point.y = (current['y'] / float(2) / (float(10) / self.RESOLUTION)) + 0.2
         current_point.z = 0.20 / float(10)
@@ -48,7 +51,7 @@ class AbstractShortPath:
         current_color.r = 0.0
         current_color.g = 0.0
         current_color.b = 1.0
-        current_color.a = 0.5
+        current_color.a = 0.5 
 
         marker_container.points.append(current_point)
         marker_container.colors.append(current_color)
@@ -83,7 +86,7 @@ class AbstractShortPath:
         marker_container.colors = []
         marker_container.header.frame_id = "map";
         marker_container.header.stamp = rclpy.time.Time().to_msg()
-        marker_container.scale.x = (0.5 / float(10)) * self.RESOLUTION
-        marker_container.scale.y = (0.5 / float(10)) * self.RESOLUTION
+        marker_container.scale.x = (0.5 / float(10)) * self.sim_resolution_factor
+        marker_container.scale.y = (0.5 / float(10)) * self.sim_resolution_factor
         marker_container.pose.orientation.w = 1.0
         return marker_container
