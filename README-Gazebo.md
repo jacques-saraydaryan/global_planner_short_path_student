@@ -1,4 +1,4 @@
-# global_planner_short_path_student Gazebo
+# Global planner short path student Gazebo
 
 ## How to use
 
@@ -20,9 +20,21 @@
     git clone https://github.com/jacques-saraydaryan/global_planner_short_path_student.git
 ```
 
+- Complie your ros workspace
+```
+    cd ~/ros_planner_ws
+    colcon build --symlink-install
+    source ./install/setup.bash
+```
+
+
 - Export your trainingrepo path
 ```
     export TRAINING_GLOBAL=<your training repo path>
+```
+- E.g
+```
+    export TRAINING_GLOBAL=/home/tp/ros_nav_ws/src/global_planner_short_path_student
 ```
 
 - Start the simulation (set headless:=False fo visualize gazebo gui)
