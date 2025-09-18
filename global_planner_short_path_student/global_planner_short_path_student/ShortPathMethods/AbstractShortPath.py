@@ -31,6 +31,10 @@ class AbstractShortPath:
         self.map_height = map_height
         self.map_resolution = map_resolution
         self.resolution = resolution
+        
+    def setCostmap(self, resizedCostMap):
+        self.resizedCostMap=resizedCostMap
+        
 
     # ******************************************************************************************
     # ********************************   MARKER CREATION   *************************************
