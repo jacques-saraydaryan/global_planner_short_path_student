@@ -1,3 +1,5 @@
+from sympy import Quaternion
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -10,6 +12,8 @@ from nav_msgs.msg import Path
 from queue import Queue, LifoQueue
 from nav_msgs.srv import GetMap
 import time
+import math
+from geometry_msgs.msg import PoseStamped, Quaternion
 
 # Base class to handle exceptions
 from tf2_ros import TransformException 
@@ -21,6 +25,7 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener 
 
 from rclpy.duration import Duration
+from rclpy.executors import SingleThreadedExecutor  # or MultiThreadedExecutor
  
 
 from global_planner_short_path_student.ShortPathMethods.WaveFront import WaveFront
@@ -29,6 +34,7 @@ from global_planner_short_path_student.ShortPathMethods.GreedyBestFirstSearch im
 from global_planner_short_path_student.ShortPathMethods.AStar import AStar
 
 from nav2_simple_commander.robot_navigator import BasicNavigator
+import numpy as np
 
 
 class ShortPathMng(Node):
@@ -64,8 +70,6 @@ class ShortPathMng(Node):
         self.get_logger().info(f"Parameter inflate_radius: {param_inflate_radius} ")
         self.get_logger().info(f'-------------------------------------------')
         
-
-
         self.shortPathMethodeSelected = param_shortPathMethod
         self.isLocalPlanner = param_isLocalPlanner
         self.inflate_radius = param_inflate_radius
@@ -86,11 +90,15 @@ class ShortPathMng(Node):
 
         # get the current goal for navigation
         self.subPt = self.create_subscription(PointStamped,"/clicked_point", self.askForGoalCallback,1)
+        
+        self.subCostMap = self.create_subscription(OccupancyGrid,"/global_costmap/costmap",self.costmapCallback,1)
 
         # ------------------#
         # --- Publisher ----#
         # ------------------#
         self.pub_marker = self.create_publisher(Marker, 'process_algo', 1)
+        self.pub_marker_obs = self.create_publisher(Marker, 'process_obs', 1)
+        self.pub_marker_costmap = self.create_publisher(Marker, 'process_costmap', 1)
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -101,6 +109,7 @@ class ShortPathMng(Node):
         #self.pub_goal = self.create_publisher(PoseStamped, '/move_base_simple/goal',  queue_size=100)
 
         self.isMapComputed = False
+        self.costMapAlreadyProcessed = False
 
 
 
@@ -129,32 +138,22 @@ class ShortPathMng(Node):
         self.map_width = data.info.width
         self.map_height = data.info.height
         self.map_resolution = data.info.resolution
-
+        
         self.get_logger().info(f'data.info.height:{data.info.height}, data.info.width:{data.info.width}')
-        self.mapArray = [[0 for x in range(self.map_width)] for x in range(self.map_height)]
+        
+        np_1D_data =np.array(data.data)
+        np_map_tmp = np_1D_data.reshape(self.map_height, self.map_width )
+        np_map_tmp[np_map_tmp == self.OBSTACLE_VALUE]=self.MAP_OBSTACLE_VALUE
+        np_map =np_map_tmp.T
+        self.mapArray= np_map.tolist()
 
-        size = self.map_width * self.map_height
-        i = 0
-        j = 0
-        for index in range(0, size):
-            current_index_y = 0;
-            current_index_x = index % (self.map_width)
-
-            if int(index / (self.map_width)) != 0:
-                current_index_y = int(index / self.map_width)
-
-            cellValue = 0
-
-            if data.data[index] == self.OBSTACLE_VALUE:
-                cellValue = self.MAP_OBSTACLE_VALUE
+        #self._display_matrix(self.mapArray,self.map_resolution,ns_name="wall_origin")
             
-            self.mapArray[current_index_y][current_index_x] = cellValue
-
         # INFLATE the map according the given inflate radius
         inflate_map = self.inflate_map(self.mapArray, self.map_resolution)
 
         # resize map
-        self.resizedMap = self.resizeWithResolution(inflate_map, self.sim_resolution_factor)
+        self.resizedMap = self.resizeMaxWithResolution(np.array(inflate_map), self.sim_resolution_factor,self.pub_marker_obs ,color=[False,False,True], alpha=0.8)
         self.get_logger().info(f'Map received and processed')
         self.isMapComputed = True
 
@@ -162,6 +161,27 @@ class ShortPathMng(Node):
             self.shortPathAlgoMap[shortPathMetodName].setLogger(self.get_logger())
             self.shortPathAlgoMap[shortPathMetodName].setMap(self.resizedMap, self.map_width, self.map_height,self.map_resolution,self.sim_resolution_factor)
             self.shortPathAlgoMap[shortPathMetodName].sim_resolution_factor = self.sim_resolution_factor
+        
+    def costmapCallback(self, data):
+        if not self.costMapAlreadyProcessed and self.isMapComputed:
+            self.map_costmap_width = data.info.width
+            self.map_costmap_height = data.info.height
+            self.map_costmap_resolution = data.info.resolution     
+
+            np_1D_data =np.array(data.data)
+            np_map_tmp = np_1D_data.reshape(self.map_height, self.map_width )
+            np_map_tmp[np_map_tmp == self.OBSTACLE_VALUE]=self.MAP_OBSTACLE_VALUE
+            np_map =np_map_tmp.T
+            self.mapCostmapArray= np_map.tolist()
+            
+            # resize map
+            self.resizedCostMap = self.resizeMaxWithResolution(np_map, self.sim_resolution_factor,self.pub_marker_costmap,alpha=0.2)
+            
+            for shortPathMetodName in self.shortPathAlgoMap:
+                self.shortPathAlgoMap[shortPathMetodName].setCostmap(self.resizedCostMap)
+            
+            self.costMapAlreadyProcessed =True
+
 
     # **************************************************
     # ***************   INFLATE MAP    *****************
@@ -188,71 +208,76 @@ class ShortPathMng(Node):
         return map
         ## UNCOMMENT LINE BELLOW TO TEST YOUR INFLATED MAP
         #return new_inflated_map
-    def resizeWithResolution(self, map, map_resolution):
+    
+    def resizeMaxWithResolution(self, np_map, map_resolution, publisher, color=[True,False,False], alpha=0.5, ):
         marker_container = Marker()
         marker_container.id = 2
         marker_container.type = Marker.CUBE_LIST
         marker_container.points = []
         marker_container.colors = []
         marker_container.header.frame_id = "map";
-        marker_container.ns = "wall";
+        marker_container.ns = "costmap";
         marker_container.scale.x = (0.5 / float(10)) * map_resolution;
         marker_container.scale.y = (0.5 / float(10)) * map_resolution;
         marker_container.header.stamp = rclpy.time.Time().to_msg()
         marker_container.pose.orientation.w = 1.0
 
-        resizedMapArray = [[0 for x in range(int(self.map_width / map_resolution))] for x in range(int(self.map_height / map_resolution))]
-        
-        i = 0
-        j = 0
-        while i < len(map):
-            j = 0
-            while j < len(map[0]):
-                if (i == 0):
-                    new_i = 0
-                else:
-                    new_i = int(round(i / float(map_resolution)))
-                    new_i = new_i if new_i< len(resizedMapArray) else len(resizedMapArray) -1
+        rows, cols = np_map.shape
+        padding_value =0
+    
+        # Calculate the padding needed for rows and columns
+        pad_rows = (map_resolution - (rows % map_resolution)) % map_resolution
+        pad_cols = (map_resolution - (cols % map_resolution)) % map_resolution
 
-                if (j == 0):
-                    new_j = 0
-                else:
-        
-                    new_j = int(round(j / float(map_resolution)))
-                    new_j = new_j if new_j< len(resizedMapArray[0]) else len(resizedMapArray[0]) -1
+        # Pad the matrix if necessary
+        if pad_rows > 0 or pad_cols > 0:
+            padded_matrix = np.pad(
+                np_map,
+                ((0, pad_rows), (0, pad_cols)),
+                mode='constant',
+                constant_values=padding_value
+            )
+        else:
+            padded_matrix = np_map
 
-                # if(j>=0 and j<self.map_width/resolution and i>=0 and i<self.map_height/resolution):
-                if self.isObstacle(map, i, j, map_resolution):
-        
-                    resizedMapArray[new_i][new_j] = self.MAP_OBSTACLE_VALUE
+        new_rows = padded_matrix.shape[0] // map_resolution
+        new_cols = padded_matrix.shape[1] // map_resolution
+
+
+        # Reshape the matrix into a 4D array to group the blocks.
+        # For a 16x16 matrix and factor 4, it becomes (4, 4, 4, 4).
+        # The first two axes represent the new dimensions, and the last two
+        # represent the elements within each block.
+        reshaped_matrix = padded_matrix.reshape(
+            new_rows, map_resolution, new_cols, map_resolution
+        )
+
+        # Take the mean along the axes representing the internal block elements
+        # to perform the average pooling.
+        compressed_matrix = reshaped_matrix.min(axis=(1, 3))
+ 
+        resizedMapArray = compressed_matrix.tolist()
+        for idx in range(0, len(resizedMapArray)):
+            for idy in range(0, len(resizedMapArray[0])):
+                computed_value = resizedMapArray[idx][idy]
+                if computed_value !=0 :
                     current_point = Point()
                     current_color = ColorRGBA()
-
-                    current_color.a = 0.5;
-                    current_color.r = 0.0;
-                    current_color.g = 1.0;
-                    current_color.b = 1.0;
-
+                    current_color.a = alpha;
+                    if color[0]:
+                        current_color.r = abs(computed_value)/float(100);
+                    if color[1]:
+                        current_color.g = abs(computed_value)/float(100);
+                    if color[2]:
+                        current_color.b = abs(computed_value)/float(100);
                     current_point.z = 0.20 / float(10)
                     offset=map_resolution *self.map_resolution/float(2)
-                    
 
-                    current_point.x = ((new_j * map_resolution *self.map_resolution))+offset
-                    current_point.y = ((new_i * map_resolution *self.map_resolution))+offset
-
-                    #current_point.x = ((new_j / float(2)) / (float(10) / resolution))
-                    #current_point.y = ((new_i / float(2)) / (float(10) / resolution)) 
-
+                    current_point.x = ((idx * map_resolution *self.map_resolution)+ offset)
+                    current_point.y = ((idy * map_resolution *self.map_resolution)+ offset)
                     marker_container.points.append(current_point)
                     marker_container.colors.append(current_color)
-                else:
-                    # print 'i:'+str(i)+"--> obstacle"
-                    # print 'j:'+str(j)
-                    resizedMapArray[new_i][new_j] = 0
-                    
-                j = j + map_resolution
-            i = i + map_resolution
-        self.pub_marker.publish(marker_container)
+        publisher.publish(marker_container)
         return resizedMapArray
 
     def isObstacle(self, map, i, j, resolution):
@@ -413,6 +438,7 @@ class ShortPathMng(Node):
         x = start['x']
         y = start['y']
         # goalQueue=LifoQueue()
+        goals = []
         goalQueue = Queue()
         goalLifo = LifoQueue()
         goalQueue.put(self.createGoal(x, y))
@@ -428,10 +454,16 @@ class ShortPathMng(Node):
                 currentgoal = self.createGoal(x, y)
                 self.createGoalMarker(currentgoal, marker_container, x, y)
                 # rospy.sleep(0.01)
-                goalQueue.put(currentgoal)
+                goals.append(currentgoal)
                 prev = mapNode[str(x) + '_' + str(y)]
         except KeyError as e:
             self.get_logger().debug(f'end reverse path')
+        first_goal = goals[-1]
+        self.orient_goals_toward_next(goals, start_xy=(first_goal.pose.position.x, first_goal.pose.position.y))
+
+        for g in goals:
+            goalQueue.put(g)
+        
         self.pub_marker.publish(marker_container)
 
         if (isreverted):
@@ -484,18 +516,95 @@ class ShortPathMng(Node):
         goal.pose.orientation.z = 0.0379763283083
         goal.pose.orientation.w = 0.999278639063
 
-        return goal
+        return goal 
+    
+    def _display_matrix(self,matrix,map_resolution,ns_name="display"):
+        marker_container = Marker()
+        marker_container.id = 2
+        marker_container.type = Marker.CUBE_LIST
+        marker_container.points = []
+        marker_container.colors = []
+        marker_container.header.frame_id = "map";
+        marker_container.ns = "costmap";
+        marker_container.scale.x = (0.5 / float(10)) * 1;
+        marker_container.scale.y = (0.5 / float(10)) * 1;
+        marker_container.header.stamp = rclpy.time.Time().to_msg()
+        marker_container.pose.orientation.w = 1.0
+        for x_i in range(0,len(matrix)):
+            for y_j in range(0,len(matrix[0])):
+                computed_value=matrix[x_i][y_j]
+                current_point = Point()
+                current_color = ColorRGBA()
+                current_color.a = 0.5;
+                current_color.r = abs(computed_value)/float(100);
+                current_point.z = 0.20 / float(10)
+                offset=1 *self.map_resolution/float(2)
+                ## CAUTION coord are inverted
+                current_point.x = ((x_i*map_resolution))+offset
+                current_point.y = ((y_j *map_resolution))+offset
+                marker_container.points.append(current_point)
+                marker_container.colors.append(current_color)
+        self.pub_marker.publish(marker_container)
+
+
+    def yaw_to_quaternion(self,yaw: float) -> Quaternion:
+        """Convert a yaw angle (rad, rotation around Z) into a geometry_msgs Quaternion."""
+        q = Quaternion()
+        q.x = 0.0
+        q.y = 0.0
+        q.z = math.sin(yaw / 2.0)
+        q.w = math.cos(yaw / 2.0)
+        return q
+
+
+    def orient_goals_toward_next(self,goals: list[PoseStamped], start_xy: tuple[float, float] | None = None) -> list[PoseStamped]:
+        #Function Genereted with the help of ClaudeCode
+        """
+        Set each goal's orientation so it faces the next goal.
+        - goals    : ordered list of PoseStamped (positions already set)
+        - start_xy : optional robot (x, y), used to orient the goal when there is only one
+        The last goal keeps the heading of the final segment (previous -> last).
+        """
+        n = len(goals)
+        if n == 0:
+            return goals
+
+        for i in range(n):
+            p = goals[i].pose.position
+            if i < n - 1:                       # face the next goal
+                nxt = goals[i + 1].pose.position
+                dx, dy = nxt.x - p.x, nxt.y - p.y
+            elif n > 1:                         # last goal: keep direction of last segment
+                prev = goals[i - 1].pose.position
+                dx, dy = p.x - prev.x, p.y - prev.y
+            elif start_xy is not None:          # single goal: direction from robot to goal
+                dx, dy = p.x - start_xy[0], p.y - start_xy[1]
+            else:
+                continue                        # nothing to compute, leave as is
+
+            if abs(dx) < 1e-6 and abs(dy) < 1e-6:   # duplicate points: reuse previous yaw
+                if i > 0:
+                    goals[i].pose.orientation = goals[i - 1].pose.orientation
+                continue
+
+            goals[i].pose.orientation = self.yaw_to_quaternion(math.atan2(dy, dx))
+
+        return goals
+
 
 def main(args=None):
-    rclpy.init(args=args)   # Initialized the rclpy lib
-    mng = ShortPathMng() # Create the node
-    rclpy.spin(mng)  # Execute and block until the contexte is shutdown, also to keep alive node and use associated callback function
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    mng.destroy_node()
-    rclpy.shutdown()
+    rclpy.init(args=args)
+    mng = ShortPathMng()
+    executor = SingleThreadedExecutor()
+    executor.add_node(mng)          # do NOT add self.navigator to this executor
+    try:
+        executor.spin()
+    finally:
+        executor.shutdown()
+        mng.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':
     main()
+    

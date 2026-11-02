@@ -90,6 +90,6 @@ class WaveFront(AbstractShortPath):
     def checkAndAdd(self, neighbors, x, y, matrix):
         """ Check that the candidate neighbor is valid == not an obstacle, in current bound, add the nieghbor node to the node list"""
         if (x > 0 and x < len(matrix) and y > 0 and y < len(matrix[0])):
-            if (matrix[y][x] != self.MAP_OBSTACLE_VALUE):
+            if (matrix[x][y] != self.MAP_OBSTACLE_VALUE):
                 neighbors.append({'x': x, 'y': y})
         return neighbors
