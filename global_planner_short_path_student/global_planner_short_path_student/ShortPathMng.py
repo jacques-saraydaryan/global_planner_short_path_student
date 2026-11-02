@@ -1,3 +1,5 @@
+from sympy import Quaternion
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -10,6 +12,8 @@ from nav_msgs.msg import Path
 from queue import Queue, LifoQueue
 from nav_msgs.srv import GetMap
 import time
+import math
+from geometry_msgs.msg import PoseStamped, Quaternion
 
 # Base class to handle exceptions
 from tf2_ros import TransformException 
@@ -434,6 +438,7 @@ class ShortPathMng(Node):
         x = start['x']
         y = start['y']
         # goalQueue=LifoQueue()
+        goals = []
         goalQueue = Queue()
         goalLifo = LifoQueue()
         goalQueue.put(self.createGoal(x, y))
@@ -449,10 +454,16 @@ class ShortPathMng(Node):
                 currentgoal = self.createGoal(x, y)
                 self.createGoalMarker(currentgoal, marker_container, x, y)
                 # rospy.sleep(0.01)
-                goalQueue.put(currentgoal)
+                goals.append(currentgoal)
                 prev = mapNode[str(x) + '_' + str(y)]
         except KeyError as e:
             self.get_logger().debug(f'end reverse path')
+        first_goal = goals[-1]
+        self.orient_goals_toward_next(goals, start_xy=(first_goal.pose.position.x, first_goal.pose.position.y))
+
+        for g in goals:
+            goalQueue.put(g)
+        
         self.pub_marker.publish(marker_container)
 
         if (isreverted):
@@ -534,6 +545,52 @@ class ShortPathMng(Node):
                 marker_container.points.append(current_point)
                 marker_container.colors.append(current_color)
         self.pub_marker.publish(marker_container)
+
+
+    def yaw_to_quaternion(self,yaw: float) -> Quaternion:
+        """Convert a yaw angle (rad, rotation around Z) into a geometry_msgs Quaternion."""
+        q = Quaternion()
+        q.x = 0.0
+        q.y = 0.0
+        q.z = math.sin(yaw / 2.0)
+        q.w = math.cos(yaw / 2.0)
+        return q
+
+
+    def orient_goals_toward_next(self,goals: list[PoseStamped], start_xy: tuple[float, float] | None = None) -> list[PoseStamped]:
+        #Function Genereted with the help of ClaudeCode
+        """
+        Set each goal's orientation so it faces the next goal.
+        - goals    : ordered list of PoseStamped (positions already set)
+        - start_xy : optional robot (x, y), used to orient the goal when there is only one
+        The last goal keeps the heading of the final segment (previous -> last).
+        """
+        n = len(goals)
+        if n == 0:
+            return goals
+
+        for i in range(n):
+            p = goals[i].pose.position
+            if i < n - 1:                       # face the next goal
+                nxt = goals[i + 1].pose.position
+                dx, dy = nxt.x - p.x, nxt.y - p.y
+            elif n > 1:                         # last goal: keep direction of last segment
+                prev = goals[i - 1].pose.position
+                dx, dy = p.x - prev.x, p.y - prev.y
+            elif start_xy is not None:          # single goal: direction from robot to goal
+                dx, dy = p.x - start_xy[0], p.y - start_xy[1]
+            else:
+                continue                        # nothing to compute, leave as is
+
+            if abs(dx) < 1e-6 and abs(dy) < 1e-6:   # duplicate points: reuse previous yaw
+                if i > 0:
+                    goals[i].pose.orientation = goals[i - 1].pose.orientation
+                continue
+
+            goals[i].pose.orientation = self.yaw_to_quaternion(math.atan2(dy, dx))
+
+        return goals
+
 
 def main(args=None):
     rclpy.init(args=args)
