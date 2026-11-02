@@ -21,6 +21,7 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener 
 
 from rclpy.duration import Duration
+from rclpy.executors import SingleThreadedExecutor  # or MultiThreadedExecutor
  
 
 from global_planner_short_path_student.ShortPathMethods.WaveFront import WaveFront
@@ -65,8 +66,6 @@ class ShortPathMng(Node):
         self.get_logger().info(f"Parameter inflate_radius: {param_inflate_radius} ")
         self.get_logger().info(f'-------------------------------------------')
         
-
-
         self.shortPathMethodeSelected = param_shortPathMethod
         self.isLocalPlanner = param_isLocalPlanner
         self.inflate_radius = param_inflate_radius
@@ -160,7 +159,7 @@ class ShortPathMng(Node):
             self.shortPathAlgoMap[shortPathMetodName].sim_resolution_factor = self.sim_resolution_factor
         
     def costmapCallback(self, data):
-        if not self.costMapAlreadyProcessed :
+        if not self.costMapAlreadyProcessed and self.isMapComputed:
             self.map_costmap_width = data.info.width
             self.map_costmap_height = data.info.height
             self.map_costmap_resolution = data.info.resolution     
@@ -536,16 +535,17 @@ class ShortPathMng(Node):
                 marker_container.colors.append(current_color)
         self.pub_marker.publish(marker_container)
 
-
 def main(args=None):
-    rclpy.init(args=args)   # Initialized the rclpy lib
-    mng = ShortPathMng() # Create the node
-    rclpy.spin(mng)  # Execute and block until the contexte is shutdown, also to keep alive node and use associated callback function
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    mng.destroy_node()
-    rclpy.shutdown()
+    rclpy.init(args=args)
+    mng = ShortPathMng()
+    executor = SingleThreadedExecutor()
+    executor.add_node(mng)          # do NOT add self.navigator to this executor
+    try:
+        executor.spin()
+    finally:
+        executor.shutdown()
+        mng.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':
